@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chimbote - Portal Turístico</title>
+  <link rel="stylesheet" href="../css/chimbotes.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="top-bar">
+    <div class="contact-left">
+      <div class="email-contact">
+        <span class="material-symbols-rounded">mail</span>
+        <a href="mailto:chimbotetraveltours16@hotmail.es">chimbotetraveltours16@hotmail.es</a>
+      </div>
+      <div class="email-contact">
+        <span class="material-symbols-rounded">call</span>
+        <span>+51 942 620 099</span>
+      </div>
+    </div>
+    <div class="icons">
+      <a href="https://www.facebook.com/ChimboteTravelToursEirl/about?locale=es_LA" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Facebook_logo_%28square%29.png/960px-Facebook_logo_%28square%29.png" alt="Facebook" width="24"></a>
+      <a href="https://www.instagram.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="24"></a>
+      <a href="https://www.tiktok.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" width="24"></a>
+      <a href="https://wa.me/51942620099" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="24"></a>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand">
+      <img src="../assets/logo-chimbote.jpg" alt="Logo" class="logo">
+      <h1>Chimbote Travel Tours</h1>
+    </div>
+    
+    <div class="menu-toggle" onclick="document.querySelector('.menu').classList.toggle('active')">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <nav class="menu">
+      <ul>
+        <li><a href="#inicio" class="active">Inicio</a></li>
+        <li><a href="destinos.html">Destinos</a></li>
+        <li><a href="reserva1.html">Reserva</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section id="inicio" class="video-container">
+    <video autoplay muted loop class="video-bg">
+      <source src="../assets/video-chimbote.mp4" type="video/mp4">
+    </video>
+    <div class="overlay">
+      <h2>Descubre las Maravillas del Mundo</h2>
+      <p>Playas, montañas, naturaleza y tradición en un solo lugar.</p>
+      <a href="#bienvenida" class="btn-primary">Explorar</a>
+    </div>
+  </section>
+
+  <section id="bienvenida" class="bienvenida">
+    <div class="bienvenida-contenedor">
+      <div class="texto-bienvenida">
+        <h2>Bienvenido a Chimbote Travel Tours</h2>
+        <p>Somos una empresa chimbotana comprometida con brindar experiencias turísticas inolvidables en los más bellos destinos del Perú. Combinamos nuestra cálida atención con la pasión por mostrar la riqueza cultural, histórica y natural de nuestro país, para que disfrutes cada viaje con seguridad, confort y auténtica hospitalidad peruana.</p>
+      </div>
+       <div class="slider"> 
+        <div class="slides">
+          <img src="https://cuscoperu.b-cdn.net/wp-content/uploads/2023/09/Visita-machu-picchu-con-ninos.webp" alt="Machu Picchu" /> 
+          <img src="https://machupicchu.center/images/colca-canyon-flight-of-the-condor-bus-to-puno.webp" alt="Cañón del Colca" /> 
+          <img src="https://blog.redbus.pe/wp-content/uploads/2021/05/banos-del-inca-e1620338846318.jpg" alt="Baños del Inca" /> 
+          <img src="https://perutogethertravel.com/wp-content/uploads/2021/11/piura-mancora.png" alt="Máncora" /> 
+          <img src="https://www.perurail.com/wp-content/uploads/2022/02/La-Laguna-Humantay-en-Cusco_perurail.jpg" alt="Laguna Humantay" />
+          <img src="https://www.alpacaexpeditions.com/wp-content/webp-express/webp-images/uploads/Montana-de-los-7-colores-pareja.jpeg.webp" alt="Montaña de Colores" /> 
+          <img src="https://www.rutaschile.com/configurador/fotos/Tour_Grande_1092018120602.jpg" alt="Paracas" />
+          <img src="https://www.comexperu.org.pe/upload/images/hechos-231017-104542.jpg" alt="Amazonas" /> 
+        </div> 
+      </div> 
+    </div> 
+  </section>
+
+  <section id="contacto" class="footer-info">
+    <div class="info-contenedor">
+      <div>
+        <h3>Sobre Nosotros</h3>
+        <p>Somos una empresa chimbotana comprometida con promover el turismo y la cultura del Perú, brindando experiencias únicas para quienes desean descubrir la diversidad y el encanto de nuestro país.</p>
+      </div>
+
+      <div>
+        <h3>Contáctanos</h3>
+        <p>Email: <a href="mailto:chimbotetraveltours16@hotmail.es" class="mail-link">chimbotetraveltours16@hotmail.es</a><br>Teléfono: +51 942 620 099</p>
+      </div>
+
+      <div class="Horario"> 
+        <h3>Horario</h3> 
+        <p><span class="material-symbols-rounded">schedule</span> Lunes a Viernes: 9:00 am - 6:00 pm</p>
+        <p><span class="material-symbols-rounded">event</span> Sábado: 9:00 am - 1:00 pm</p> 
+        <p><span class="material-symbols-rounded">event_busy</span> Domingo: Cerrado</p>
+      </div>
+
+      <div class="Pago"> 
+        <h3>Métodos de Pago</h3>
+        <div class="pagos"> 
+          <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa"></a> 
+          <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard"></a> 
+          <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Icono_de_la_aplicaci%C3%B3n_Yape.png" alt="Yape"></a> 
+          <a href="#"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo9ig-yw4ZC6cj896X8Fl3DSd160deJD-dFw&s" alt="Plin"></a> 
+        </div> 
+      </div> 
+    </div>
+
+    <div class="footer-social-icons">
+      <a href="https://www.facebook.com/ChimboteTravelToursEirl/about?locale=es_LA"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Facebook_logo_%28square%29.png/960px-Facebook_logo_%28square%29.png" alt="Facebook" width="30"></a>
+      <a href="https://www.instagram.com"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram" width="30"></a>
+      <a href="https://www.tiktok.com"><img src="https://img.freepik.com/vector-premium/logotipo-redes-sociales-vector-tiktok_1093524-451.jpg" alt="TikTok" width="30"></a>
+      <a href="https://wa.me/51942620099"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="30"></a>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Portal Turístico de Chimbote | Todos los derechos reservados.
+  </footer>
+
+  <a href="https://wa.me/51942620099" class="btn-whatsapp" target="_blank">
+    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="35">
+  </a>
+</body>
+</html>
