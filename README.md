@@ -19,7 +19,7 @@ API REST moderna para el sistema de turismo de Chimbote Travel Tours, utilizando
 npm install
 
 # Configurar variables de entorno
-cp config.env.example .env
+Copy-Item config.env.example .env
 
 # Para probar si funciona 
  npm run dev
