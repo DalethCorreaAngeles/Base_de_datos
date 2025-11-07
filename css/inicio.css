@@ -1,0 +1,108 @@
+/* Importar fuente decorativa para títulos */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+/* Fondo general con imagen */
+body {
+  background: url('https://wallpapers.com/images/hd/cusco-main-square-cathedral-cusco-peru-a9xcyur7x7unudfn.jpg') center/cover no-repeat;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1rem;
+  overflow-x: hidden; /* evita que se desborde horizontalmente */
+}
+
+/* Cuadro flotante de bienvenida con integración visual */
+.bienvenida {
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 1s ease-in-out;
+  box-sizing: border-box; /* asegura que el padding no rompa el ancho */
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Logo circular sin bordes */
+.logo {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Título principal */
+h1 {
+  font-family: 'Pacifico', cursive;
+  font-size: 2.2rem;
+  color: #0077b6;
+  margin-bottom: 0.5rem;
+}
+
+/* Subtítulo */
+p {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Botón/enlace de entrada */
+a {
+  display: inline-block;
+  background-color: #0077b6;
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Hover */
+a:hover {
+  background-color: #023e8a;
+}
+
+/* Responsive para celulares */
+@media (max-width: 600px) {
+  .bienvenida {
+    padding: 1.5rem 1rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+
+  .logo {
+    width: 120px;
+    height: 120px;
+  }
+
+  a {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    text-align: center;
+  }
+}

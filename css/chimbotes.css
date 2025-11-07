@@ -1,0 +1,388 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;500&display=swap');
+
+html { scroll-behavior: smooth; }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f9f9;
+  color: #333;
+}
+
+/* BARRA SUPERIOR */
+.top-bar {
+  background-color: #023e8a;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.material-symbols-rounded {
+  vertical-align: middle;
+  font-size: 22px;
+}
+
+.contact-left, .contact-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.email-contact {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.email-contact a {
+  color: white;
+  text-decoration: none;
+}
+
+.email-contact a:hover {
+  color: #ffdd00;
+}
+
+.social-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.social-icons img {
+  width: 25px;
+  height: 25px;
+  filter: brightness(0) invert(1);
+  transition: 0.3s;
+}
+
+.social-icons img:hover {
+  filter: brightness(0) invert(0.7);
+  transform: scale(1.1);
+}
+
+/* HEADER */
+header {
+  background-color: #0077b6;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.logo {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand h1 {
+  font-family: 'Pacifico', cursive;
+  font-size: 1.8rem;
+}
+
+/* MENÚ */
+.menu ul {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+}
+
+.menu a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.menu a:hover, .menu a.active {
+  color: #ffdd00;
+}
+
+/* BOTÓN */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.menu-toggle span {
+  background: white;
+  height: 3px;
+  width: 25px;
+  border-radius: 5px;
+}
+
+/* RESPONSIVO MENÚ */
+@media (max-width: 768px) {
+  .menu {
+    display: none;
+    width: 100%;
+    background-color: #0077b6;
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  .menu ul {
+    flex-direction: column;
+    padding: 1rem 0;
+    gap: 1rem;
+  }
+
+  .menu.active {
+    display: block;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+}
+/* VIDEO */
+.video-container {
+  position: relative;
+  height: 90vh;
+  overflow: hidden;
+}
+
+.video-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-primary {
+  background: #0077b6;
+  color: #f4f9f9;
+  padding: 0.7rem 1.5rem;
+  border-radius: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: 1rem;
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  background: #44c4ff;
+  transform: scale(1.05);
+}
+
+/* BIENVENIDA */
+.bienvenida {
+  padding: 3rem 2rem;
+  background: white;
+}
+
+.bienvenida-contenedor {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.texto-bienvenida {
+  flex: 1 1 45%;
+}
+
+.texto-bienvenida h2 {
+  color: #0077b6;
+  font-family: 'Pacifico', cursive;
+  margin-bottom: 1rem;
+}
+
+/* SLIDER */
+.slider {
+  flex: 2 2 20%;
+  overflow: hidden;
+  border-radius: 30px;
+  height: 280px;
+}
+
+.slides {
+  display: flex;
+  width: calc(80% * 8);
+  animation: slide 60s infinite linear;
+}
+
+.slides img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+@keyframes slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* FOOTER */
+.footer-info {
+  background: #0077b6;
+  color: white;
+  padding: 3rem 2rem;
+}
+
+.info-contenedor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 2rem;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.footer-info h3 {
+  font-family: 'Pacifico', cursive;
+  margin-bottom: 0.8rem;
+}
+
+/* MÉTODOS DE PAGO */
+.pagos {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pagos img {
+  width: 55px;
+  height: 35px;
+  border-radius: 5px;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+
+.pagos img:hover {
+  transform: scale(1.1);
+}
+
+/* REDES SOCIALES FOOTER */
+.footer-social-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: 1.5rem;
+}
+
+.footer-social-icons img {
+  width: 35px;
+  height: 35px;
+  transition: transform 0.3s;
+}
+
+.footer-social-icons img:hover {
+  transform: scale(1.1);
+  filter: brightness(0) invert(0.7);
+}
+
+footer {
+  background: #023e8a;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* WHATSAPP */
+.btn-whatsapp {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #25d366;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: 0.3s;
+}
+
+.btn-whatsapp:hover {
+  transform: scale(1.1);
+}
+
+/* RESPONSIVO GENERAL */
+@media (max-width: 900px) {
+  .bienvenida-contenedor {
+    flex-direction: column;
+    text-align: center;
+  }
+  .slider {
+    width: 90%;
+  }
+}
+
+/* RESPONSIVO: BARRA SUPERIOR */
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    gap: 0.8rem;
+  }
+
+  .contact-left, .contact-right {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .email-contact {
+    justify-content: center;
+  }
+
+  .social-icons {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .social-icons img {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.overlay h2, .overlay p {
+  animation: fadeIn 3s ease forwards;
+}
