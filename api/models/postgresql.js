@@ -112,9 +112,9 @@ class PostgreSQLModels {
       await this.createDestinationsTable();
       await this.createReservationsTable();
       await this.createUsersTable();
-      console.log('✅ Tablas creadas correctamente en PostgreSQL');
+      console.log(' Tablas creadas correctamente en PostgreSQL');
     } catch (error) {
-      console.error('❌ Error creando tablas de PostgreSQL:', error.message);
+      console.error(' Error creando tablas de PostgreSQL:', error.message);
       throw error;
     }
   }

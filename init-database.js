@@ -15,16 +15,16 @@ const config = {
 };
 
 async function initializeDatabase() {
-  console.log('🚀 Inicializando base de datos PostgreSQL...');
+  console.log(' Inicializando base de datos PostgreSQL...');
   
   try {
     // 1. Conectar a PostgreSQL
     const pool = new Pool(config);
     const client = await pool.connect();
-    console.log('✅ Conectado a PostgreSQL');
+    console.log(' Conectado a PostgreSQL');
     
     // 2. Crear tablas
-    console.log('📊 Creando tablas...');
+    console.log(' Creando tablas...');
     
     // Tabla de destinos
     await client.query(`
@@ -41,7 +41,7 @@ async function initializeDatabase() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('✅ Tabla destinations creada');
+    console.log(' Tabla destinations creada');
     
     // Tabla de reservas
     await client.query(`
@@ -58,7 +58,7 @@ async function initializeDatabase() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('✅ Tabla reservations creada');
+    console.log(' Tabla reservations creada');
     
     // Tabla de usuarios
     await client.query(`
@@ -71,17 +71,17 @@ async function initializeDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('✅ Tabla users creada');
+    console.log(' Tabla users creada');
     
     // 3. Insertar datos de ejemplo
-    console.log('📊 Insertando datos de ejemplo...');
+    console.log(' Insertando datos de ejemplo...');
     
     // Verificar si ya existen datos
     const checkQuery = 'SELECT COUNT(*) FROM destinations';
     const result = await client.query(checkQuery);
     
     if (result.rows[0].count > 0) {
-      console.log('📊 Datos de ejemplo ya existen');
+      console.log(' Datos de ejemplo ya existen');
     } else {
       // Insertar destinos de ejemplo
       const destinations = [
@@ -125,7 +125,7 @@ async function initializeDatabase() {
         ]);
       }
       
-      console.log('✅ Datos de ejemplo insertados');
+      console.log(' Datos de ejemplo insertados');
     }
     
     // 4. Mostrar estadísticas
@@ -136,7 +136,7 @@ async function initializeDatabase() {
         (SELECT COUNT(*) FROM users) as total_users
     `;
     const stats = await client.query(statsQuery);
-    console.log('📊 Estadísticas de la base de datos:');
+    console.log(' Estadísticas de la base de datos:');
     console.log(`   🏖️  Destinos: ${stats.rows[0].total_destinations}`);
     console.log(`   📋 Reservas: ${stats.rows[0].total_reservations}`);
     console.log(`   👥 Usuarios: ${stats.rows[0].total_users}`);
@@ -144,12 +144,12 @@ async function initializeDatabase() {
     client.release();
     await pool.end();
     
-    console.log('🎉 Base de datos inicializada exitosamente!');
-    console.log('🚀 Ahora puedes ejecutar: npm start');
+    console.log(' Base de datos inicializada exitosamente!');
+    console.log(' Ahora puedes ejecutar: npm start');
     
   } catch (error) {
-    console.error('❌ Error inicializando base de datos:', error);
-    console.error('🔧 Soluciones posibles:');
+    console.error(' Error inicializando base de datos:', error);
+    console.error(' Soluciones posibles:');
     console.error('   1. Verifica que PostgreSQL esté ejecutándose');
     console.error('   2. Crea la base de datos "chimbote_travel"');
     console.error('   3. Verifica las credenciales en .env');

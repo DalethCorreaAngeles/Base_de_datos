@@ -4,7 +4,6 @@ const { Pool } = require('pg');
 // CONFIGURACIÓN DE POSTGRESQL
 // ===========================================
 
-// Configuración de PostgreSQL
 const postgresConfig = {
   host: process.env.POSTGRES_HOST || 'localhost',
   port: process.env.POSTGRES_PORT || 5432,
@@ -21,7 +20,7 @@ const postgresPool = new Pool(postgresConfig);
 
 // Manejo de errores de conexión
 postgresPool.on('error', (err) => {
-  console.error('❌ Error inesperado en el pool de PostgreSQL:', err);
+  console.error('Error inesperado en el pool de PostgreSQL:', err);
 });
 
 
@@ -33,13 +32,13 @@ postgresPool.on('error', (err) => {
 async function connectPostgreSQL() {
   try {
     const client = await postgresPool.connect();
-    console.log('✅ PostgreSQL conectado exitosamente');
-    console.log(`📊 Base de datos: ${postgresConfig.database}`);
-    console.log(`🏠 Host: ${postgresConfig.host}:${postgresConfig.port}`);
+    console.log(' PostgreSQL conectado exitosamente');
+    console.log(` Base de datos: ${postgresConfig.database}`);
+    console.log(` Host: ${postgresConfig.host}:${postgresConfig.port}`);
     return client;
   } catch (error) {
-    console.error('❌ Error conectando a PostgreSQL:', error.message);
-    console.error('💡 Verifica que PostgreSQL esté ejecutándose y las credenciales sean correctas');
+    console.error(' Error conectando a PostgreSQL:', error.message);
+    console.error(' Verifica que PostgreSQL esté ejecutándose y las credenciales sean correctas');
     throw error;
   }
 }
@@ -49,16 +48,16 @@ async function connectPostgreSQL() {
 // ===========================================
 
 async function initializeDatabases() {
-  console.log('🚀 Iniciando conexión a PostgreSQL...');
+  console.log(' Iniciando conexión a PostgreSQL...');
   
   try {
     // Conectar solo a PostgreSQL
     await connectPostgreSQL();
     
-    console.log('🎉 PostgreSQL conectado exitosamente');
+    console.log(' PostgreSQL conectado exitosamente');
   } catch (error) {
-    console.error('💥 Error inicializando PostgreSQL:', error);
-    console.error('🔧 Soluciones posibles:');
+    console.error(' Error inicializando PostgreSQL:', error);
+    console.error(' Soluciones posibles:');
     console.error('   1. Verifica que PostgreSQL esté ejecutándose');
     console.error('   2. Crea la base de datos "chimbote_travel"');
     console.error('   3. Verifica las credenciales en la configuración');

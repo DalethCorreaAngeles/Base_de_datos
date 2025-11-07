@@ -1,9 +1,8 @@
 // ===========================================
-// CONFIGURACIÓN DE EJEMPLO PARA POSTGRESQL
+// CONFIGURACIÓN PARA POSTGRESQL
 // ===========================================
 
 module.exports = {
-  // Configuración de PostgreSQL
   postgres: {
     host: 'localhost',
     port: 5432,
