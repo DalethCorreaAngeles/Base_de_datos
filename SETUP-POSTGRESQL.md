@@ -1,37 +1,14 @@
-# 🐘 Configuración de PostgreSQL para Chimbote Travel API
+#  Configuración de PostgreSQL para Chimbote Travel API
 
-## 📋 Requisitos Previos
+## Requisitos Previos
 
 1. **PostgreSQL instalado** (versión 12 o superior)
 2. **Node.js** (versión 16 o superior)
 3. **npm** o **yarn**
 
-## 🚀 Configuración Paso a Paso
+## Configuración Paso a Paso
 
 ### 1. Instalar PostgreSQL
-
-#### Windows:
-```bash
-# Descargar desde: https://www.postgresql.org/download/windows/
-# O usar chocolatey:
-choco install postgresql
-```
-
-#### macOS:
-```bash
-# Usar Homebrew:
-brew install postgresql
-brew services start postgresql
-```
-
-#### Linux (Ubuntu/Debian):
-```bash
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-```
-
 ### 2. Crear la Base de Datos
 
 ```bash
@@ -41,7 +18,7 @@ psql -U postgres
 # Crear la base de datos
 CREATE DATABASE chimbote_travel;
 
-# Crear usuario (opcional)
+# Crear usuario 
 CREATE USER chimbote_user WITH PASSWORD 'admin123';
 GRANT ALL PRIVILEGES ON DATABASE chimbote_travel TO chimbote_user;
 
@@ -84,10 +61,10 @@ npm run init-db
 ```
 
 Este comando:
-- ✅ Conecta a PostgreSQL
-- ✅ Crea las tablas necesarias
-- ✅ Inserta datos de ejemplo
-- ✅ Muestra estadísticas
+-  Conecta a PostgreSQL
+-  Crea las tablas necesarias
+-  Inserta datos de ejemplo
+-  Muestra estadísticas
 
 ### 6. Iniciar el Servidor
 
@@ -99,7 +76,7 @@ npm run dev
 npm start
 ```
 
-## 🔧 Solución de Problemas
+##  Solución de Problemas
 
 ### Error: "database does not exist"
 ```bash
@@ -120,9 +97,6 @@ ALTER USER postgres PASSWORD 'admin123';
 # Verificar que PostgreSQL esté ejecutándose
 # Windows:
 net start postgresql-x64-13
-
-# macOS:
-brew services start postgresql
 
 # Linux:
 sudo systemctl start postgresql
@@ -162,7 +136,7 @@ sudo systemctl start postgresql
 - `role` - Rol del usuario
 - `created_at` - Fecha de creación
 
-## 🧪 Probar la API
+##  Probar la API
 
 ### Endpoints Disponibles:
 
@@ -197,7 +171,7 @@ Content-Type: application/json
 }
 ```
 
-## 📈 Monitoreo
+##  Monitoreo
 
 ### Verificar Conexión:
 ```bash
@@ -218,25 +192,16 @@ SELECT * FROM reservations;
 npm run dev
 
 # Los logs mostrarán:
-# ✅ PostgreSQL conectado exitosamente
-# 📊 Base de datos: chimbote_travel
-# 🏠 Host: localhost:5432
+# PostgreSQL conectado exitosamente
+# Base de datos: chimbote_travel
+#  Host: localhost:5432
 ```
 
-## 🎯 Próximos Pasos
-
-1. **Configurar respaldos automáticos**
-2. **Implementar autenticación JWT**
-3. **Agregar validaciones de datos**
-4. **Configurar índices para optimización**
-5. **Implementar cache con Redis**
-
-## 📞 Soporte
-
+### Por si falla
 Si tienes problemas:
 1. Verifica que PostgreSQL esté ejecutándose
 2. Revisa las credenciales en `.env`
 3. Ejecuta `npm run init-db` para reinicializar
 4. Consulta los logs del servidor
 
-¡Listo! Tu API de Chimbote Travel está configurada con PostgreSQL. 🎉
+
