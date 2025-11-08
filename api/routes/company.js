@@ -16,23 +16,41 @@ router.get('/info', async (req, res) => {
     const { SiteConfig } = require('../models/mongodb');
     const siteConfig = await SiteConfig.findOne();
     
-    // 2. Obtener información de empleados desde Oracle
-    const oracleConnection = req.app.locals.oracleConnection;
-    const employees = await OracleModels.getAllEmployees(oracleConnection);
+    const responseData = {
+      company_info: siteConfig || {},
+      source: 'MongoDB'
+    };
     
-    // 3. Obtener métricas del sistema desde Cassandra
-    const cassandraClient = req.app.locals.cassandraClient;
-    const cassandraModels = new CassandraModels(cassandraClient);
-    const systemHealth = await cassandraModels.getSystemHealth();
+    // 2. Obtener información de empleados desde Oracle (si está disponible)
+    try {
+      const oracleConnection = req.app.locals?.oracleConnection;
+      if (oracleConnection) {
+        const employees = await OracleModels.getAllEmployees(oracleConnection);
+        responseData.employees_count = employees.length;
+        responseData.source += ' + Oracle';
+      }
+    } catch (oracleError) {
+      // Oracle no disponible, continuar sin él
+      console.log('Oracle no disponible, continuando sin él');
+    }
+    
+    // 3. Obtener métricas del sistema desde Cassandra (si está disponible)
+    try {
+      const cassandraClient = req.app.locals?.cassandraClient;
+      if (cassandraClient) {
+        const cassandraModels = new CassandraModels(cassandraClient);
+        const systemHealth = await cassandraModels.getSystemHealth();
+        responseData.system_health = systemHealth;
+        responseData.source += ' + Cassandra';
+      }
+    } catch (cassandraError) {
+      // Cassandra no disponible, continuar sin él
+      console.log('Cassandra no disponible, continuando sin él');
+    }
     
     res.json({
       success: true,
-      data: {
-        company_info: siteConfig || {},
-        employees_count: employees.length,
-        system_health: systemHealth,
-        source: 'MongoDB + Oracle + Cassandra'
-      }
+      data: responseData
     });
     
   } catch (error) {

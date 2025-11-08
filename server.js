@@ -5,9 +5,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const { initializeDatabases } = require('./api/config/database');
+const { initializePostgreSQL } = require('./api/config/database');
+const { initializeMongoDB } = require('./api/config/indexMongo');
 const PostgreSQLModels = require('./api/models/postgresql');
-require('dotenv').config();
+const { MongoDBModels } = require('./api/models/mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,8 @@ app.use(limiter);
 app.use('/api/destinations', require('./api/routes/destinations'));
 app.use('/api/reservations', require('./api/routes/reservations'));
 app.use('/api/company', require('./api/routes/company'));
+app.use('/api/activity-logs', require('./api/routes/activity-logs'));
+app.use('/api/analytics', require('./api/routes/analytics'));
 
 // Ruta principal
 app.get('/', (req, res) => {
@@ -39,7 +42,9 @@ app.get('/', (req, res) => {
     endpoints: {
       destinations: '/api/destinations',
       reservations: '/api/reservations',
-      company: '/api/company'
+      company: '/api/company',
+      activityLogs: '/api/activity-logs',
+      analytics: '/api/analytics'
     }
   });
 });
@@ -62,33 +67,60 @@ app.use('*', (req, res) => {
 });
 
 // ===========================================
-// INICIALIZAR SERVIDOR CON POSTGRESQL
+// INICIALIZAR SERVIDOR CON BASES DE DATOS
 // ===========================================
 async function startServer() {
+  const dbStatus = {
+    postgresql: false,
+    mongodb: false
+  };
+
   try {
-    // 1. Inicializar conexión a PostgreSQL
-    await initializeDatabases();
-    
-    // 2. Inicializar tablas de PostgreSQL
-    console.log('📊 Inicializando tablas de PostgreSQL...');
-    await PostgreSQLModels.initializeTables();
-    
-    // 3. Insertar datos de ejemplo
-    await insertSampleData();
-    
-    // 4. Iniciar servidor
+    // 1. Inicializar MongoDB (no crítico - el servidor puede iniciar sin él)
+    try {
+      console.log('📊 Inicializando MongoDB...');
+      await initializeMongoDB();
+      await MongoDBModels.initializeSiteConfig();
+      dbStatus.mongodb = true;
+      console.log('✅ MongoDB inicializado correctamente');
+    } catch (mongoError) {
+      console.warn('⚠️  MongoDB no disponible:', mongoError.message);
+      console.warn('   El servidor continuará sin MongoDB');
+    }
+
+    // 2. Inicializar PostgreSQL (crítico para algunas funcionalidades)
+    try {
+      console.log('📊 Inicializando PostgreSQL...');
+      await initializePostgreSQL();
+      console.log('📊 Inicializando tablas de PostgreSQL...');
+      await PostgreSQLModels.initializeTables();
+      await insertSampleData();
+      dbStatus.postgresql = true;
+      console.log('✅ PostgreSQL inicializado correctamente');
+    } catch (postgresError) {
+      console.warn('⚠️  PostgreSQL no disponible:', postgresError.message);
+      console.warn('   El servidor continuará, pero algunas funcionalidades no estarán disponibles');
+    }
+
+    // 3. Iniciar servidor (siempre inicia, incluso si las DBs fallan)
     app.listen(PORT, () => {
-      console.log(' Servidor iniciado exitosamente!');
-      console.log(` API corriendo en http://localhost:${PORT}`);
-      console.log('\n Base de datos conectada:');
-      console.log('    PostgreSQL - Destinos y Reservas');
+      console.log('\n==========================================');
+      console.log('🚀 Servidor iniciado exitosamente!');
+      console.log('==========================================');
+      console.log(`✅ API corriendo en http://localhost:${PORT}`);
+      console.log('\n📊 Estado de bases de datos:');
+      console.log(`   PostgreSQL: ${dbStatus.postgresql ? '✅ Conectado' : '❌ No disponible'}`);
+      console.log(`   MongoDB:    ${dbStatus.mongodb ? '✅ Conectado' : '❌ No disponible'}`);
       console.log('\n🔗 Endpoints disponibles:');
       console.log('    GET  /api/destinations');
       console.log('    POST /api/reservations');
       console.log('    GET  /api/company/info');
+      console.log('    GET  /api/activity-logs');
+      console.log('    GET  /api/analytics');
+      console.log('==========================================\n');
     });
   } catch (error) {
-    console.error(' Error iniciando servidor:', error);
+    console.error('❌ Error crítico iniciando servidor:', error);
     process.exit(1);
   }
 }

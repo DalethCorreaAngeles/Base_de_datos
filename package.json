@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "init-db": "node init-database.js",
-    "test": "jest"
+    "test": "jest",
+    "test-connections": "node test-connections.js",
+    "check-env": "node check-env-connections.js"
   },
   "keywords": ["api", "tourism", "peru", "travel"],
   "author": "Chimbote Travel Tours",
