@@ -226,3 +226,47 @@ testConnections().catch(error => {
   process.exit(1);
 });
 
+// ====================================================
+// 🔗 SCRIPT DE PRUEBA DE CONEXIÓN A ORACLE
+// ====================================================
+require("dotenv").config();
+const { getOracleConnection } = require("./api/config/oracle");
+
+async function testOracle() {
+  console.log("\n=========================================");
+  console.log("🔗 PRUEBA DE CONEXIÓN A ORACLE");
+  console.log("=========================================\n");
+
+  console.log("📡 Información de conexión:");
+  console.log(`   Host: ${process.env.ORACLE_HOST}`);
+  console.log(`   Puerto: ${process.env.ORACLE_PORT}`);
+  console.log(`   Servicio: ${process.env.ORACLE_SERVICE_NAME}`);
+  console.log(`   Usuario: ${process.env.ORACLE_USER}\n`);
+
+  try {
+    const conn = await getOracleConnection();
+    console.log("✅ Conexión exitosa con Oracle\n");
+
+    const result = await conn.execute(
+      "SELECT 'Conectado a Oracle desde Node.js' AS MENSAJE FROM DUAL"
+    );
+    
+    // Mostrar datos reales de la tabla EMPLEADOS
+  const empleados = await conn.execute("SELECT * FROM EMPLEADOS");
+  console.log("\n📋 Tabla EMPLEADOS:");
+  console.table(empleados.rows);
+
+
+    console.log("📢 Resultado de prueba:");
+    console.log(result.rows[0].MENSAJE);
+    await conn.close();
+
+    console.log("\n🔒 Conexión cerrada correctamente.");
+  } catch (err) {
+    console.error("❌ Error al conectar a Oracle:");
+    console.error(err);
+  }
+}
+
+// Ejecutar solo la prueba de Oracle
+testOracle();
