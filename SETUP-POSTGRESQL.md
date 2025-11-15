@@ -9,22 +9,26 @@
 ## Configuración Paso a Paso
 
 ### 1. Instalar PostgreSQL
-### 2. Crear la Base de Datos
+### 2. CONECTATE A POSTGRES
+```bash
+# Verificar que PostgreSQL esté ejecutándose
+# Windows:
+net start postgresql-x64-13
+
+# Linux:
+sudo systemctl start postgresql
+```
+### 3. Crear la Base de Datos
 
 ```bash
-# Conectar a PostgreSQL como superusuario
-psql -U postgres
+# Conectar a PostgreSQL
+sudo -u postgres psql
 
 # Crear la base de datos
 CREATE DATABASE chimbote_travel;
 
-# Crear usuario 
-CREATE USER chimbote_user WITH PASSWORD 'admin123';
-GRANT ALL PRIVILEGES ON DATABASE chimbote_travel TO chimbote_user;
-
 # Salir
 \q
-```
 
 ### 3. Configurar Variables de Entorno
 
@@ -43,7 +47,7 @@ POSTGRES_PASSWORD=admin123
 # ===========================================
 # CONFIGURACIÓN DEL SERVIDOR
 # ===========================================
-PORT=3000
+PORT=3002
 NODE_ENV=development
 ```
 
@@ -84,23 +88,6 @@ npm start
 createdb -U postgres chimbote_travel
 ```
 
-### Error: "password authentication failed"
-```bash
-# Verificar credenciales en .env
-# O cambiar contraseña de PostgreSQL:
-sudo -u postgres psql
-ALTER USER postgres PASSWORD 'admin123';
-```
-
-### Error: "connection refused"
-```bash
-# Verificar que PostgreSQL esté ejecutándose
-# Windows:
-net start postgresql-x64-13
-
-# Linux:
-sudo systemctl start postgresql
-```
 
 ## 📊 Estructura de la Base de Datos
 
