@@ -98,7 +98,7 @@ createdb -U postgres chimbote_travel
 - `description` - Descripción
 - `price` - Precio por persona
 - `duration_days` - Duración en días
-- `includes` - Array de servicios incluidos
+- `includes` - JSONB
 - `image_url` - URL de la imagen
 - `created_at` - Fecha de creación
 - `updated_at` - Fecha de actualización
@@ -129,13 +129,13 @@ createdb -U postgres chimbote_travel
 
 ```bash
 # Obtener todos los destinos
-GET http://localhost:3000/api/destinations
+GET http://localhost:3002/api/destinations
 
 # Obtener destino específico
-GET http://localhost:3000/api/destinations/1
+GET http://localhost:3002/api/destinations/1
 
 # Crear nueva reserva
-POST http://localhost:3000/api/reservations
+POST http://localhost:3002/api/reservations
 Content-Type: application/json
 
 {
