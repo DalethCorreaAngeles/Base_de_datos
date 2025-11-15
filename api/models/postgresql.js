@@ -6,7 +6,7 @@ class PostgreSQLModels {
   // DESTINOS TURÍSTICOS
   // ===========================================
   static async createDestinationsTable() {
-    const query = `{}
+    const query = `
       CREATE TABLE IF NOT EXISTS destinations (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
