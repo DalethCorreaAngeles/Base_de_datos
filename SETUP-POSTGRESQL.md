@@ -22,6 +22,9 @@ sudo systemctl start postgresql
 
 ```bash
 # Conectar a PostgreSQL
+# para windows : 
+psql -U postgres 
+# linux: 
 sudo -u postgres psql
 
 # Crear la base de datos
