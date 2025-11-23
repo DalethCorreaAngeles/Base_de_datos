@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const { initializePostgreSQL } = require('./api/config/database');
 const { initializeMongoDB } = require('./api/config/indexMongo');
+const { initOracle } = require('./api/config/oracle');
 const PostgreSQLModels = require('./api/models/postgresql');
 const { MongoDBModels } = require('./api/models/mongodb');
 
@@ -72,7 +73,8 @@ app.use('*', (req, res) => {
 async function startServer() {
   const dbStatus = {
     postgresql: false,
-    mongodb: false
+    mongodb: false,
+    oracle: false
   };
 
   try {
@@ -102,7 +104,18 @@ async function startServer() {
       console.warn('   El servidor continuará, pero algunas funcionalidades no estarán disponibles');
     }
 
-    // 3. Iniciar servidor (siempre inicia, incluso si las DBs fallan)
+    // 3. Inicializar Oracle (no crítico - el servidor puede iniciar sin él)
+    try {
+      console.log('📊 Inicializando Oracle...');
+      await initOracle();
+      dbStatus.oracle = true;
+      console.log('✅ Oracle inicializado correctamente');
+    } catch (oracleError) {
+      console.warn('⚠️  Oracle no disponible:', oracleError.message);
+      console.warn('   El servidor continuará sin Oracle');
+    }
+
+    // 4. Iniciar servidor (siempre inicia, incluso si las DBs fallan)
     app.listen(PORT, () => {
       console.log('\n==========================================');
       console.log('🚀 Servidor iniciado exitosamente!');
@@ -111,6 +124,7 @@ async function startServer() {
       console.log('\n📊 Estado de bases de datos:');
       console.log(`   PostgreSQL: ${dbStatus.postgresql ? '✅ Conectado' : '❌ No disponible'}`);
       console.log(`   MongoDB:    ${dbStatus.mongodb ? '✅ Conectado' : '❌ No disponible'}`);
+      console.log(`   Oracle:     ${dbStatus.oracle ? '✅ Conectado' : '❌ No disponible'}`);
       console.log('\n🔗 Endpoints disponibles:');
       console.log('    GET  /api/destinations');
       console.log('    POST /api/reservations');
