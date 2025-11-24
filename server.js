@@ -119,7 +119,8 @@ async function startServer() {
       }),
 
       // Cassandra
-      initializeCassandra().then(async () => {
+      initializeCassandra().then(async (client) => {
+        app.locals.cassandraClient = client;
         await CassandraModels.initializeTables();
         dbStatus.cassandra = true;
         return 'Cassandra conectado';
@@ -155,14 +156,7 @@ async function insertSampleData() {
   try {
     const { postgresPool } = require('./api/config/postgres');
 
-    // Verificar si ya existen datos
-    const checkQuery = 'SELECT COUNT(*) FROM destinations';
-    const result = await postgresPool.query(checkQuery);
-
-    if (result.rows[0].count > 0) {
-      return;
-    }
-
+    // Insertar destinos de ejemplo
     // Insertar destinos de ejemplo
     const destinations = [
       {
@@ -191,18 +185,38 @@ async function insertSampleData() {
         duration_days: 1,
         includes: ['Degustación', 'Guía gastronómico', 'Transporte'],
         image_url: '/assets/logo-chimbote.jpg'
-      }
+      },
+      // Destinos de la web
+      { name: 'Machu Picchu – Cusco', location: 'Cusco', description: 'Visita a la ciudadela inca', price: 450.00, duration_days: 2, includes: ['Transporte', 'Guía', 'Entradas'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Montaña de 7 Colores – Cusco', location: 'Cusco', description: 'Caminata a la montaña Vinicunca', price: 150.00, duration_days: 1, includes: ['Transporte', 'Guía', 'Desayuno', 'Almuerzo'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Valle Sagrado + Pisac – Cusco', location: 'Cusco', description: 'Tour por el Valle Sagrado de los Incas', price: 180.00, duration_days: 1, includes: ['Transporte', 'Guía', 'Almuerzo buffet'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Paracas + Huacachina – Ica', location: 'Ica', description: 'Islas Ballestas y Oasis de Huacachina', price: 220.00, duration_days: 1, includes: ['Transporte', 'Guía', 'Paseo en lancha', 'Tubulares'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Máncora + Nado con Tortugas – Piura', location: 'Piura', description: 'Playas del norte y nado con tortugas', price: 350.00, duration_days: 3, includes: ['Hospedaje', 'Desayunos', 'Tours'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Cañón del Colca – Arequipa', location: 'Arequipa', description: 'Avistamiento de cóndores y aguas termales', price: 280.00, duration_days: 2, includes: ['Transporte', 'Hospedaje', 'Guía'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Arequipa Colonial + Santa Catalina', location: 'Arequipa', description: 'City tour por Arequipa y Monasterio', price: 120.00, duration_days: 1, includes: ['Transporte', 'Guía', 'Entradas'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Laguna Humantay – Cusco', location: 'Cusco', description: 'Caminata a la laguna turquesa', price: 160.00, duration_days: 1, includes: ['Transporte', 'Guía', 'Desayuno', 'Almuerzo'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Tarapoto + Cataratas de Ahuashiyacu', location: 'San Martín', description: 'Selva alta y cataratas', price: 380.00, duration_days: 3, includes: ['Hospedaje', 'Tours', 'Traslados'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Iquitos + Selva Amazónica', location: 'Loreto', description: 'Expedición en la selva amazónica', price: 450.00, duration_days: 3, includes: ['Lodge', 'Alimentación completa', 'Excursiones'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Ayacucho + Aguas Turquesas de Millpu', location: 'Ayacucho', description: 'Piscinas naturales de color turquesa', price: 200.00, duration_days: 2, includes: ['Transporte', 'Guía', 'Hospedaje'], image_url: '/assets/logo-chimbote.jpg' },
+      { name: 'Cajamarca Histórica + Baños del Inca', location: 'Cajamarca', description: 'Historia y aguas termales', price: 250.00, duration_days: 2, includes: ['Transporte', 'Guía', 'Entradas'], image_url: '/assets/logo-chimbote.jpg' }
     ];
 
     for (const dest of destinations) {
-      const query = `
-        INSERT INTO destinations (name, location, description, price, duration_days, includes, image_url)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-      `;
-      await postgresPool.query(query, [
-        dest.name, dest.location, dest.description, dest.price,
-        dest.duration_days, dest.includes, dest.image_url
-      ]);
+      // Verificar si el destino ya existe por nombre
+      const checkQuery = 'SELECT id FROM destinations WHERE name = $1';
+      const checkResult = await postgresPool.query(checkQuery, [dest.name]);
+
+      if (checkResult.rows.length === 0) {
+        const query = `
+          INSERT INTO destinations (name, location, description, price, duration_days, includes, image_url)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `;
+        await postgresPool.query(query, [
+          dest.name, dest.location, dest.description, dest.price,
+          dest.duration_days, dest.includes, dest.image_url
+        ]);
+        // Silencio: no mostramos log por cada inserción
+      }
     }
 
     // Datos insertados

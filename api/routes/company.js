@@ -3,6 +3,7 @@ const router = express.Router();
 const { MongoDBModels } = require('../models/mongo.db');
 const OracleModels = require('../models/oracle.db');
 const CassandraModels = require('../models/cassandra.db');
+const { getOracleConnection } = require('../config/oracle');
 
 // ===========================================
 // RUTAS PARA INFORMACIÓN CORPORATIVA
@@ -22,16 +23,23 @@ router.get('/info', async (req, res) => {
     };
 
     // 2. Obtener información de empleados desde Oracle (si está disponible)
+    let oracleConnection;
     try {
-      const oracleConnection = req.app.locals?.oracleConnection;
-      if (oracleConnection) {
-        const employees = await OracleModels.getAllEmployees(oracleConnection);
-        responseData.employees_count = employees.length;
-        responseData.source += ' + Oracle';
-      }
+      oracleConnection = await getOracleConnection();
+      const employees = await OracleModels.getAllEmployees(oracleConnection);
+      responseData.employees_count = employees.length;
+      responseData.source += ' + Oracle';
     } catch (oracleError) {
       // Oracle no disponible, continuar sin él
-      console.log('Oracle no disponible, continuando sin él');
+      console.log('Oracle no disponible o error:', oracleError.message);
+    } finally {
+      if (oracleConnection) {
+        try {
+          await oracleConnection.close();
+        } catch (err) {
+          console.error('Error cerrando conexion Oracle:', err);
+        }
+      }
     }
 
     // 3. Obtener métricas del sistema desde Cassandra (si está disponible)
@@ -66,8 +74,14 @@ router.get('/info', async (req, res) => {
 router.get('/employees', async (req, res) => {
   try {
     // 1. Obtener empleados desde Oracle
-    const oracleConnection = req.app.locals.oracleConnection;
-    const employees = await OracleModels.getAllEmployees(oracleConnection);
+    let oracleConnection;
+    let employees = [];
+    try {
+      oracleConnection = await getOracleConnection();
+      employees = await OracleModels.getAllEmployees(oracleConnection);
+    } finally {
+      if (oracleConnection) await oracleConnection.close();
+    }
 
     // 2. Log de actividad en MongoDB
     await MongoDBModels.logActivity({
@@ -97,8 +111,14 @@ router.get('/employees', async (req, res) => {
 router.get('/financial-dashboard', async (req, res) => {
   try {
     // 1. Obtener dashboard financiero desde Oracle
-    const oracleConnection = req.app.locals.oracleConnection;
-    const financialDashboard = await OracleModels.getFinancialDashboard(oracleConnection);
+    let oracleConnection;
+    let financialDashboard;
+    try {
+      oracleConnection = await getOracleConnection();
+      financialDashboard = await OracleModels.getFinancialDashboard(oracleConnection);
+    } finally {
+      if (oracleConnection) await oracleConnection.close();
+    }
 
     // 2. Obtener analytics desde MongoDB
     const today = new Date();
@@ -152,12 +172,21 @@ router.get('/analytics', async (req, res) => {
     const systemMetrics = await cassandraModels.getMetricsByType('system', 100);
 
     // 3. Obtener resumen financiero desde Oracle
-    const oracleConnection = req.app.locals.oracleConnection;
-    const financialSummary = await OracleModels.getFinancialSummary(
-      oracleConnection,
-      startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-      endDate || new Date()
-    );
+    let oracleConnection;
+    let financialSummary;
+    try {
+      oracleConnection = await getOracleConnection();
+      financialSummary = await OracleModels.getFinancialSummary(
+        oracleConnection,
+        startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        endDate || new Date()
+      );
+    } catch (err) {
+      console.error('Error obteniendo resumen financiero Oracle:', err);
+      financialSummary = [];
+    } finally {
+      if (oracleConnection) await oracleConnection.close();
+    }
 
     res.json({
       success: true,
@@ -250,12 +279,15 @@ router.get('/health', async (req, res) => {
     };
 
     // 3. Verificar salud de Oracle
-    const oracleConnection = req.app.locals.oracleConnection;
     let oracleHealth = { status: 'connected', timestamp: new Date() };
+    let oracleConn;
     try {
-      await oracleConnection.execute('SELECT 1 FROM dual');
+      oracleConn = await getOracleConnection();
+      await oracleConn.execute('SELECT 1 FROM dual');
     } catch (error) {
       oracleHealth = { status: 'error', error: error.message, timestamp: new Date() };
+    } finally {
+      if (oracleConn) await oracleConn.close();
     }
 
     // 4. Verificar salud de PostgreSQL

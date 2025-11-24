@@ -10,18 +10,45 @@ const { postgresPool } = require('../config/postgres');
 // POST /api/reservations - Crear nueva reserva
 router.post('/', async (req, res) => {
   try {
-    const { client_name, client_email, destination_id, travel_date, number_of_people } = req.body;
+    let { client_name, client_email, destination_id, destination_name, travel_date, number_of_people } = req.body;
 
-    // Validar datos requeridos
-    if (!client_name || !client_email || !destination_id || !travel_date || !number_of_people) {
+    // Validar datos requeridos básicos
+    if (!client_name || !client_email || !travel_date || !number_of_people) {
       return res.status(400).json({
         success: false,
         error: 'Datos requeridos faltantes',
-        message: 'client_name, client_email, destination_id, travel_date y number_of_people son obligatorios'
+        message: 'client_name, client_email, travel_date y number_of_people son obligatorios'
       });
     }
 
-    // 1. Obtener información del destino desde PostgreSQL
+    // Manejar resolución de destino
+    if (!destination_id) {
+      if (!destination_name) {
+        return res.status(400).json({
+          success: false,
+          error: 'Destino faltante',
+          message: 'Debe proporcionar destination_id o destination_name'
+        });
+      }
+
+      // Buscar destino por nombre (insensible a mayúsculas/minúsculas)
+      const findDestQuery = 'SELECT * FROM destinations WHERE LOWER(name) = LOWER($1) OR LOWER(name) LIKE LOWER($2)';
+      // Intentar coincidencia exacta o parcial
+      const findDestResult = await postgresPool.query(findDestQuery, [destination_name, `%${destination_name}%`]);
+
+      if (findDestResult.rows.length > 0) {
+        destination_id = findDestResult.rows[0].id;
+      } else {
+        // Destino no encontrado y no se permite crear automáticamente
+        return res.status(404).json({
+          success: false,
+          error: 'Destino no encontrado',
+          message: `El destino '${destination_name}' no existe en nuestra base de datos.`
+        });
+      }
+    }
+
+    // 1. Obtener información del destino final
     const destinationQuery = 'SELECT * FROM destinations WHERE id = $1';
     const destinationResult = await postgresPool.query(destinationQuery, [destination_id]);
 
