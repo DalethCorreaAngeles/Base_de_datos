@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const { initializeCassandra, getCassandraClient, disconnectCassandra } = require('./api/config/cassandra');
-const CassandraModels = require('./api/models/cassandra');
+const CassandraModels = require('./api/models/cassandra.db');
 
 // ===========================================
 // SCRIPT DE INICIALIZACIÓN DE CASSANDRA
@@ -9,19 +9,19 @@ const CassandraModels = require('./api/models/cassandra');
 
 async function initializeDatabase() {
   console.log('📊 Inicializando base de datos Cassandra...');
-  
+
   // Validar que las variables necesarias estén configuradas
   if (!process.env.CASSANDRA_KEYSPACE) {
     console.error('❌ Error: CASSANDRA_KEYSPACE no está configurado en .env');
     console.error('💡 Agrega CASSANDRA_KEYSPACE a tu archivo .env');
     process.exit(1);
   }
-  
+
   if (!process.env.CASSANDRA_HOST && !process.env.CASSANDRA_HOSTS) {
     console.warn('⚠️  Advertencia: CASSANDRA_HOST o CASSANDRA_HOSTS no configurado');
     console.warn('💡 Usando localhost:9042 por defecto');
   }
-  
+
   console.log('📊 Usando configuración de tu .env:');
   console.log(`   Keyspace: ${process.env.CASSANDRA_KEYSPACE}`);
   if (process.env.CASSANDRA_HOSTS) {
@@ -32,30 +32,30 @@ async function initializeDatabase() {
   if (process.env.CASSANDRA_DATACENTER) {
     console.log(`   Data Center: ${process.env.CASSANDRA_DATACENTER}`);
   }
-  
+
   let client;
-  
+
   try {
     // 1. Conectar a Cassandra
     console.log('\n📊 Conectando a Cassandra...');
     await initializeCassandra();
     client = getCassandraClient();
     console.log('✅ Conectado a Cassandra');
-    
+
     // 2. Crear tablas
     console.log('\n📊 Creando tablas...');
     await CassandraModels.initializeTables();
     console.log('✅ Tablas creadas exitosamente');
-    
+
     // 3. Insertar datos de ejemplo
     console.log('\n📊 Insertando datos de ejemplo...');
-    
+
     // Verificar si ya existen datos
     try {
       const checkQuery = 'SELECT COUNT(*) FROM user_sessions';
       const result = await client.execute(checkQuery, [], { prepare: true });
       const sessionCount = result.rows.length > 0 ? result.rows[0]['count'] : 0;
-      
+
       if (sessionCount > 0) {
         console.log('📊 Datos de ejemplo ya existen');
       } else {
@@ -72,7 +72,7 @@ async function initializeDatabase() {
         };
         await CassandraModels.createSession(sessionData);
         console.log('✅ Sesión de ejemplo insertada');
-        
+
         // Insertar caché de destino de ejemplo
         const cacheData = {
           destination_id: 'dest-001',
@@ -84,7 +84,7 @@ async function initializeDatabase() {
         };
         await CassandraModels.cacheDestination(cacheData);
         console.log('✅ Caché de destino insertado');
-        
+
         // Insertar métrica de ejemplo
         await CassandraModels.recordMetric({
           metric_type: 'page_view',
@@ -93,7 +93,7 @@ async function initializeDatabase() {
           tags: { page: 'home', source: 'web' }
         });
         console.log('✅ Métrica de ejemplo insertada');
-        
+
         // Insertar notificación de ejemplo
         await CassandraModels.createNotification({
           user_id: 'user-001',
@@ -124,7 +124,7 @@ async function initializeDatabase() {
         console.warn('⚠️  No se pudo insertar datos de ejemplo:', insertError.message);
       }
     }
-    
+
     // 4. Mostrar estadísticas
     console.log('\n📊 Obteniendo estadísticas...');
     try {
@@ -132,7 +132,7 @@ async function initializeDatabase() {
       console.log('📊 Estadísticas de la base de datos:');
       console.log(`   🔐 Sesiones activas: ${health.active_sessions}`);
       console.log(`   📊 Estado: ${health.status}`);
-      
+
       // Contar notificaciones
       try {
         const notifications = await CassandraModels.getUserNotifications('user-001', 100);
@@ -140,7 +140,7 @@ async function initializeDatabase() {
       } catch (notifError) {
         // Ignorar si no hay notificaciones
       }
-      
+
       // Contar métricas
       try {
         const metrics = await CassandraModels.getMetricsByType('page_view', 100);
@@ -151,10 +151,10 @@ async function initializeDatabase() {
     } catch (statsError) {
       console.warn('⚠️  No se pudieron obtener estadísticas:', statsError.message);
     }
-    
+
     console.log('\n✅ Base de datos Cassandra inicializada exitosamente!');
     console.log('📝 Ahora puedes ejecutar: npm start');
-    
+
   } catch (error) {
     console.error('\n❌ Error inicializando base de datos:', error.message);
     if (error.stack) {
@@ -170,7 +170,7 @@ async function initializeDatabase() {
     console.error('   3. Si usas autenticación, verifica CASSANDRA_USER y CASSANDRA_PASSWORD');
     console.error('   4. Asegúrate de que el keyspace ya esté creado en Cassandra');
     console.error('   4. Verifica que el puerto 9042 esté abierto');
-    
+
     if (error.message.includes('ECONNREFUSED')) {
       console.error('\n   🔌 Error de conexión: Cassandra no está ejecutándose o no es accesible');
     } else if (error.message.includes('Authentication')) {
@@ -178,7 +178,7 @@ async function initializeDatabase() {
     } else if (error.message.includes('keyspace')) {
       console.error('\n   📁 Error de keyspace: Verifica que el keyspace exista o pueda crearse');
     }
-    
+
     process.exit(1);
   } finally {
     // Desconectar al finalizar

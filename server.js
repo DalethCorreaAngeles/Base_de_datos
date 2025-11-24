@@ -5,13 +5,13 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const { initializePostgreSQL } = require('./api/config/database');
-const { initializeMongoDB } = require('./api/config/indexMongo');
+const { initializePostgreSQL } = require('./api/config/postgres');
+const { initializeMongoDB } = require('./api/config/mongo');
 const { initOracle } = require('./api/config/oracle');
 const { initializeCassandra } = require('./api/config/cassandra');
-const PostgreSQLModels = require('./api/models/postgresql');
-const { MongoDBModels } = require('./api/models/mongodb');
-const CassandraModels = require('./api/models/cassandra');
+const PostgreSQLModels = require('./api/models/postgres.db');
+const { MongoDBModels } = require('./api/models/mongo.db');
+const CassandraModels = require('./api/models/cassandra.db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -153,7 +153,7 @@ async function startServer() {
 // Función para insertar datos de ejemplo
 async function insertSampleData() {
   try {
-    const { postgresPool } = require('./api/config/database');
+    const { postgresPool } = require('./api/config/postgres');
 
     // Verificar si ya existen datos
     const checkQuery = 'SELECT COUNT(*) FROM destinations';

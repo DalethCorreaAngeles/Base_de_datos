@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { postgresPool } = require('../config/database');
+const { postgresPool } = require('../config/postgres');
 
 // ===========================================
 // RUTAS PARA DESTINOS TURÍSTICOS
@@ -13,14 +13,14 @@ router.get('/', async (req, res) => {
     // Obtener datos desde PostgreSQL
     const query = 'SELECT * FROM destinations ORDER BY created_at DESC';
     const result = await postgresPool.query(query);
-    
+
     res.json({
       success: true,
       data: result.rows,
       count: result.rows.length,
       source: 'PostgreSQL'
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo destinos:', error);
     res.status(500).json({
@@ -35,24 +35,24 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Obtener destino desde PostgreSQL
     const query = 'SELECT * FROM destinations WHERE id = $1';
     const result = await postgresPool.query(query, [id]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'Destino no encontrado'
       });
     }
-    
+
     res.json({
       success: true,
       data: result.rows[0],
       source: 'PostgreSQL'
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo destino:', error);
     res.status(500).json({
@@ -66,7 +66,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, location, description, price, duration_days, includes, image_url } = req.body;
-    
+
     // Validar datos requeridos
     if (!name || !location || !price || !duration_days) {
       return res.status(400).json({
@@ -75,7 +75,7 @@ router.post('/', async (req, res) => {
         message: 'name, location, price y duration_days son obligatorios'
       });
     }
-    
+
     // Guardar en PostgreSQL
     const query = `
       INSERT INTO destinations (name, location, description, price, duration_days, includes, image_url)
@@ -84,14 +84,14 @@ router.post('/', async (req, res) => {
     `;
     const values = [name, location, description, price, duration_days, includes, image_url];
     const result = await postgresPool.query(query, values);
-    
+
     res.status(201).json({
       success: true,
       data: result.rows[0],
       message: 'Destino creado exitosamente',
       source: 'PostgreSQL'
     });
-    
+
   } catch (error) {
     console.error('Error creando destino:', error);
     res.status(500).json({
@@ -114,7 +114,7 @@ router.get('/analytics/overview', async (req, res) => {
       FROM destinations
     `;
     const statsResult = await postgresPool.query(statsQuery);
-    
+
     res.json({
       success: true,
       data: {
@@ -122,7 +122,7 @@ router.get('/analytics/overview', async (req, res) => {
         source: 'PostgreSQL'
       }
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo analytics:', error);
     res.status(500).json({

@@ -1,4 +1,4 @@
-const { postgresPool } = require('../config/database');
+const { postgresPool } = require('../config/postgres');
 
 class PostgreSQLModels {
 

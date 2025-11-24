@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { postgresPool } = require('../config/database');
+const { postgresPool } = require('../config/postgres');
 
 // ===========================================
 // RUTAS PARA RESERVAS
@@ -11,7 +11,7 @@ const { postgresPool } = require('../config/database');
 router.post('/', async (req, res) => {
   try {
     const { client_name, client_email, destination_id, travel_date, number_of_people } = req.body;
-    
+
     // Validar datos requeridos
     if (!client_name || !client_email || !destination_id || !travel_date || !number_of_people) {
       return res.status(400).json({
@@ -20,21 +20,21 @@ router.post('/', async (req, res) => {
         message: 'client_name, client_email, destination_id, travel_date y number_of_people son obligatorios'
       });
     }
-    
+
     // 1. Obtener información del destino desde PostgreSQL
     const destinationQuery = 'SELECT * FROM destinations WHERE id = $1';
     const destinationResult = await postgresPool.query(destinationQuery, [destination_id]);
-    
+
     if (destinationResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'Destino no encontrado'
       });
     }
-    
+
     const destination = destinationResult.rows[0];
     const total_price = destination.price * number_of_people;
-    
+
     // 2. Crear reserva en PostgreSQL
     const reservationQuery = `
       INSERT INTO reservations (client_name, client_email, destination_id, travel_date, number_of_people, total_price)
@@ -43,14 +43,14 @@ router.post('/', async (req, res) => {
     `;
     const reservationValues = [client_name, client_email, destination_id, travel_date, number_of_people, total_price];
     const reservationResult = await postgresPool.query(reservationQuery, reservationValues);
-    
+
     res.status(201).json({
       success: true,
       data: reservationResult.rows[0],
       message: 'Reserva creada exitosamente',
       source: 'PostgreSQL'
     });
-    
+
   } catch (error) {
     console.error('Error creando reserva:', error);
     res.status(500).json({
@@ -71,14 +71,14 @@ router.get('/', async (req, res) => {
       ORDER BY r.created_at DESC
     `;
     const result = await postgresPool.query(query);
-    
+
     res.json({
       success: true,
       data: result.rows,
       count: result.rows.length,
       source: 'PostgreSQL'
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo reservas:', error);
     res.status(500).json({
@@ -92,7 +92,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Obtener reserva desde PostgreSQL
     const query = `
       SELECT r.*, d.name as destination_name, d.location, d.price as destination_price
@@ -101,20 +101,20 @@ router.get('/:id', async (req, res) => {
       WHERE r.id = $1
     `;
     const result = await postgresPool.query(query, [id]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'Reserva no encontrada'
       });
     }
-    
+
     res.json({
       success: true,
       data: result.rows[0],
       source: 'PostgreSQL'
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo reserva:', error);
     res.status(500).json({
@@ -129,7 +129,7 @@ router.put('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    
+
     // Validar estado
     const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed'];
     if (!validStatuses.includes(status)) {
@@ -139,25 +139,25 @@ router.put('/:id/status', async (req, res) => {
         message: 'Los estados válidos son: pending, confirmed, cancelled, completed'
       });
     }
-    
+
     // Actualizar estado en PostgreSQL
     const query = 'UPDATE reservations SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *';
     const result = await postgresPool.query(query, [status, id]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'Reserva no encontrada'
       });
     }
-    
+
     res.json({
       success: true,
       data: result.rows[0],
       message: 'Estado de reserva actualizado exitosamente',
       source: 'PostgreSQL'
     });
-    
+
   } catch (error) {
     console.error('Error actualizando estado de reserva:', error);
     res.status(500).json({
@@ -182,7 +182,7 @@ router.get('/analytics/financial', async (req, res) => {
       WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
     `;
     const statsResult = await postgresPool.query(statsQuery);
-    
+
     res.json({
       success: true,
       data: {
@@ -190,7 +190,7 @@ router.get('/analytics/financial', async (req, res) => {
         source: 'PostgreSQL'
       }
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo reporte financiero:', error);
     res.status(500).json({

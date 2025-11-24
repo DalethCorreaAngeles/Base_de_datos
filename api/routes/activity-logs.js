@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { ActivityLog } = require('../models/mongodb');
+const { ActivityLog } = require('../models/mongo.db');
 
 // ===========================================
 // RUTAS PARA LOGS DE ACTIVIDAD (MONGODB)
@@ -10,29 +10,29 @@ const { ActivityLog } = require('../models/mongodb');
 router.get('/', async (req, res) => {
   try {
     const { limit = 50, skip = 0, action, resource } = req.query;
-    
+
     // Construir query
     const query = {};
     if (action) query.action = action;
     if (resource) query.resource = resource;
-    
+
     // Obtener logs desde MongoDB
     const logs = await ActivityLog.find(query)
       .sort({ timestamp: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip))
       .lean();
-    
+
     // Contar total
     const total = await ActivityLog.countDocuments(query);
-    
+
     res.json({
       success: true,
       data: logs || [],
       total: total || 0,
       source: 'MongoDB'
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo logs de actividad:', error);
     res.status(500).json({

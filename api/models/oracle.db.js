@@ -1,4 +1,4 @@
-const oracledb = require('oracledb');
+const { getOracleConnection } = require('../config/oracle');
 
 class OracleModels {
 

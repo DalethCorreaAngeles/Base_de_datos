@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Analytics } = require('../models/mongodb');
+const { Analytics } = require('../models/mongo.db');
 
 // ===========================================
 // RUTAS PARA ANALYTICS (MONGODB)
@@ -10,10 +10,10 @@ const { Analytics } = require('../models/mongodb');
 router.get('/', async (req, res) => {
   try {
     const { startDate, endDate, limit = 30 } = req.query;
-    
+
     // Construir query
     let analyticsQuery = {};
-    
+
     if (startDate && endDate) {
       analyticsQuery.date = {
         $gte: new Date(startDate),
@@ -28,23 +28,23 @@ router.get('/', async (req, res) => {
         $lte: new Date(endDate)
       };
     }
-    
+
     // Obtener analytics desde MongoDB
     const analytics = await Analytics.find(analyticsQuery)
       .sort({ date: -1 })
       .limit(parseInt(limit))
       .lean();
-    
+
     // Contar total
     const total = await Analytics.countDocuments(analyticsQuery);
-    
+
     res.json({
       success: true,
       data: analytics || [],
       total: total || 0,
       source: 'MongoDB'
     });
-    
+
   } catch (error) {
     console.error('Error obteniendo analytics:', error);
     res.status(500).json({

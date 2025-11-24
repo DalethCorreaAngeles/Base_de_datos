@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { connectMongoDB } = require('../config/mongo');
 // ===========================================
 // MODELOS PARA MONGODB (BASE DE DATOS NO RELACIONAL)
 // ===========================================
@@ -19,8 +19,6 @@ const activityLogSchema = new mongoose.Schema({
   metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
 });
 
-// AQUÍ SE LLENA: new ActivityLog({ user_id: '123', action: 'view_destination', resource: 'destinations', ... })
-
 // ===========================================
 // ESQUEMA DE ANALYTICS
 // ===========================================
@@ -33,8 +31,6 @@ const analyticsSchema = new mongoose.Schema({
   successful_reservations: { type: Number, default: 0 },
   revenue: { type: Number, default: 0 }
 });
-
-// AQUÍ SE LLENA: new Analytics({ date: new Date(), page_views: 150, unique_visitors: 45, ... })
 
 // ===========================================
 // ESQUEMA DE COMENTARIOS Y RESEÑAS
@@ -50,7 +46,6 @@ const reviewSchema = new mongoose.Schema({
   helpful_votes: { type: Number, default: 0 }
 });
 
-// AQUÍ SE LLENA: new Review({ destination_id: '1', client_name: 'Juan Pérez', rating: 5, comment: 'Excelente experiencia!', ... })
 
 // ===========================================
 // ESQUEMA DE GALERÍA DE IMÁGENES
@@ -64,8 +59,6 @@ const gallerySchema = new mongoose.Schema({
   upload_date: { type: Date, default: Date.now },
   tags: { type: [String], default: [] }
 });
-
-// AQUÍ SE LLENA: new Gallery({ destination_id: '1', image_url: 'https://...', image_title: 'Machu Picchu Vista', ... })
 
 // ===========================================
 // ESQUEMA DE CONFIGURACIÓN DEL SITIO
@@ -88,7 +81,6 @@ const siteConfigSchema = new mongoose.Schema({
   payment_methods: { type: [String], default: ['Visa', 'Mastercard', 'Yape', 'Plin'] }
 });
 
-// AQUÍ SE LLENA: new SiteConfig({ site_name: 'Chimbote Travel Tours', contact_email: '...', ... })
 
 // ===========================================
 // CREAR MODELOS

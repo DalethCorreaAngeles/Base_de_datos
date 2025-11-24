@@ -6,11 +6,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "init-db": "node init-database.js",
-    "init-oracle": "node init-oracle.js",
-    "init-cassandra": "node init-cassandra.js",
+    "test-postgres": "node test-postgres.js",
+    "test-oracle": "node test-oracle.js",
+    "test-cassandra": "node test-cassandra.js",
     "test": "jest",
-    "test-connections": "node test-connections.js",
+    "test-mongo": "node test-mongo.js",
     "check-env": "node check-env-connections.js"
   },
   "keywords": [
