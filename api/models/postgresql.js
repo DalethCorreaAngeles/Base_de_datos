@@ -107,14 +107,14 @@ class PostgreSQLModels {
   // INICIALIZAR TODAS LAS TABLAS
   // ===========================================
   static async initializeTables() {
-    console.log('📊 Inicializando tablas de PostgreSQL...');
+    // Inicializando tablas
     try {
       await this.createDestinationsTable();
       await this.createReservationsTable();
       await this.createUsersTable();
-      console.log(' Tablas creadas correctamente en PostgreSQL');
+      // Tablas creadas
     } catch (error) {
-      console.error(' Error creando tablas de PostgreSQL:', error.message);
+      console.error('Error creando tablas de PostgreSQL:', error.message);
       throw error;
     }
   }

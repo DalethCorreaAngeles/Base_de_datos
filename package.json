@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "init-db": "node init-database.js",
     "init-oracle": "node init-oracle.js",
+    "init-cassandra": "node init-cassandra.js",
     "test": "jest",
     "test-connections": "node test-connections.js",
     "check-env": "node check-env-connections.js"

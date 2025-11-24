@@ -103,7 +103,7 @@ const SiteConfig = mongoose.model('SiteConfig', siteConfigSchema);
 // FUNCIONES DE UTILIDAD
 // ===========================================
 class MongoDBModels {
-  
+
   // Crear configuración inicial del sitio
   static async initializeSiteConfig() {
     try {
@@ -121,10 +121,10 @@ class MongoDBModels {
           }
         });
         await defaultConfig.save();
-        console.log('✅ Configuración inicial del sitio creada');
+        // Configuración creada
       }
     } catch (error) {
-      console.error('❌ Error inicializando configuración del sitio:', error);
+      console.error('Error inicializando configuración del sitio:', error);
     }
   }
 
@@ -134,7 +134,7 @@ class MongoDBModels {
       const log = new ActivityLog(activityData);
       await log.save();
     } catch (error) {
-      console.error('❌ Error guardando log de actividad:', error);
+      console.error('Error guardando log de actividad:', error);
     }
   }
 
@@ -145,12 +145,12 @@ class MongoDBModels {
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
-      
+
       return await Analytics.findOne({
         date: { $gte: startOfDay, $lte: endOfDay }
       });
     } catch (error) {
-      console.error('❌ Error obteniendo analytics:', error);
+      console.error('Error obteniendo analytics:', error);
       return null;
     }
   }

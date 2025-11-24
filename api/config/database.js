@@ -1,8 +1,6 @@
 const { Pool } = require('pg');
 
-// ===========================================
-// CONFIGURACIÓN DE POSTGRESQL
-// ===========================================
+// Configuracion de PostgreSQL
 
 // Configuración de la conexión a PostgreSQL
 const postgresConfig = {
@@ -24,54 +22,42 @@ postgresPool.on('error', (err) => {
   console.error('Error inesperado en el pool de PostgreSQL:', err);
 });
 
-// ===========================================
-// FUNCIONES DE CONEXIÓN POSTGRESQL
-// ===========================================
+// Funciones de conexion
 
 // Conectar a PostgreSQL
 async function connectPostgreSQL() {
   try {
     const client = await postgresPool.connect();
-    console.log('✅ PostgreSQL conectado exitosamente');
-    console.log(`   Base de datos: ${postgresConfig.database}`);
-    console.log(`   Host: ${postgresConfig.host}:${postgresConfig.port}`);
+    // Conectado
     return client;
   } catch (error) {
-    console.error('❌ Error conectando a PostgreSQL:', error.message);
-    console.error('   Verifica que PostgreSQL esté ejecutándose y las credenciales sean correctas');
+    console.error('Error conectando a PostgreSQL:', error.message);
     throw error;
   }
 }
 
 // Inicializar conexión a PostgreSQL
 async function initializePostgreSQL() {
-  console.log('📊 Iniciando conexión a PostgreSQL...');
-  
+  // Iniciando...
+
   try {
     await connectPostgreSQL();
-    console.log('✅ PostgreSQL conectado exitosamente');
   } catch (error) {
-    console.error('❌ Error inicializando PostgreSQL:', error);
-    console.error('   Soluciones posibles:');
-    console.error('   1. Verifica que PostgreSQL esté ejecutándose');
-    console.error('   2. Crea la base de datos "chimbote_travel"');
-    console.error('   3. Verifica las credenciales en la configuración');
+    console.error('Error inicializando PostgreSQL:', error.message);
     throw error;
   }
 }
 
-// ===========================================
-// EXPORTAR CONEXIONES Y FUNCIONES
-// ===========================================
+// Exportar
 
 module.exports = {
   // Conexión a PostgreSQL
   postgresPool,
-  
+
   // Funciones de conexión
   connectPostgreSQL,
   initializePostgreSQL,
-  
+
   // Configuración
   postgresConfig
 };

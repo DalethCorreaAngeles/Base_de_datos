@@ -16,7 +16,7 @@ async function initOracle() {
     poolIncrement: 1,
   });
 
-  console.log("✅ Pool de Oracle creado exitosamente.");
+  // Pool creado
   return oraclePool;
 }
 

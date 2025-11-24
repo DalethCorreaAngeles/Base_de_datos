@@ -1,173 +1,96 @@
-# Configuración de MongoDB para Chimbote Travel API
+# MongoDB
 
-# Requisitos Previos
+## Requisitos Previos
 
-1. **MongoDB Atlas** (Cloud) 
-2. **Node.js** (versión 16 o superior)
-3. **npm** o **yarn**
+1. **MongoDB Atlas** (Cloud) o **MongoDB Local**
+2. **Node.js**
+3. **npm**
 
+## Configuración Paso a Paso
 
-# Configuración con MongoDB Atlas (Cloud)
+### 1. Opción A: MongoDB Atlas (Cloud)
 
-# 1. Crear cuenta en MongoDB Atlas
+1. Crea una cuenta en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2. Crea un Cluster gratuito.
+3. En **Database Access**, crea un usuario (ej. `chimbote_user`).
+4. En **Network Access**, permite tu IP o `0.0.0.0/0`.
+5. Obtén la URI de conexión: `mongodb+srv://<user>:<password>@cluster...`
 
-1. Visita [https://www.mongodb.com/cloud/atlas]
-2. Crea una cuenta gratuita (M0 - Free tier)
-3. Crea un nuevo cluster (elige la región más cercana)
+### 2. Opción B: MongoDB Local
 
-# 2. Configurar acceso a la base de datos
+```bash
+# Instalar MongoDB Community Edition
+# Iniciar servicio
+sudo systemctl start mongod
+```
 
-## Crear usuario de base de datos
+### 3. Configurar Variables de Entorno
 
-1. Ve a **Database Access** → **Add New Database User**
-2. Crea un usuario con:
-   - **Username**: `chimbote_travel` 
-   - **Password**: Genera una contraseña segura
-   - **Database User Privileges**: `Read and write to any database`
-3. Guarda las credenciales (las necesitarás después)
-
-## Configurar acceso de red
-
-1. Ve a **Network Access** → **Add IP Address**
-2. Para desarrollo: Agrega `0.0.0.0/0` (permite acceso desde cualquier IP)
-   -- **Nota**: En producción, usa IPs específicas
-3. O agrega tu IP actual
-
-# 3. Obtener cadena de conexión
-
-1. Ve a **Database** → **Connect** → **Connect your application**
-2. Elige **Node.js** como driver
-3. Copia la cadena de conexión, ejemplo:
-   ```
-  MONGODB_URI=mongodb+srv://daliaph3929q_db_user:AkfuLFnVeVsjuFG8@cluster.mongodb.net/chimbote_travel
-   ```
-4. **Importante**: Agrega el nombre de la base de datos a la URI:
-   ```
-   MONGODB_URI=mongodb+srv://daliaph3929q_db_user:AkfuLFnVeVsjuFG8@cluster0.bhxsztz.mongodb.net/chimbote_travel
-   ```
-
-# 4. Configurar Variables de Entorno
-
-Crear o editar archivo `.env` en la raíz del proyecto:
+Agrega al archivo `.env`:
 
 ```env
 # ===========================================
 # CONFIGURACIÓN DE MONGODB
 # ===========================================
-MONGODB_URI=mongodb+srv://daliaph3929q_db_user:AkfuLFnVeVsjuFG8@cluster.mongodb.net/chimbote_travel
-
-# ===========================================
-# CONFIGURACIÓN DEL SERVIDOR
-# ===========================================
-PORT=3002
-NODE_ENV=development
+MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/chimbote_travel
+# O para local: mongodb://localhost:27017/chimbote_travel
 ```
 
-### 2. Verificar instalación
+### 4. Inicializar Colecciones
+
+MongoDB crea las colecciones automáticamente al insertar datos, pero puedes verificar la conexión:
 
 ```bash
-# Verificar que MongoDB esté corriendo
-# Windows:
-net start MongoDB
-
-### 3. Crear la base de datos
-
-MongoDB crea las bases de datos automáticamente al usarlas, pero puedes verificar:
-
-```bash
-# Conectar a MongoDB
-mongosh
-
-# Ver bases de datos
-show dbs
-
-# Usar la base de datos:
-use chimbote_travel
-
-# Ver colecciones
-show collections
-
-# Salir
-exit
-```
-
-## Instalar Dependencias
-
-```bash
-npm install
-```
-
-## Probar la Conexión
-
-```bash
-# Ejecutar script de prueba de conexiones
 npm run test-connections
 ```
 
-Este comando:
-- ✅ Verifica conexión a MongoDB
-- ✅ Muestra información de la conexión (host, puerto, base de datos)
-- ✅ Lista las colecciones existentes
-- ✅ Muestra estadísticas del servidor
+## Estructura de Datos (Colecciones)
+
+### 1. activity_logs
+Registro de acciones de usuarios.
+- `user_id`, `action`, `resource`, `timestamp`
+
+### 2. analytics
+Métricas de uso del sitio.
+- `date`, `page_views`, `unique_visitors`
+
+### 3. reviews
+Reseñas de destinos.
+- `destination_id`, `rating`, `comment`, `client_name`
+
+### 4. site_config
+Configuración global del sitio (contacto, redes sociales).
+
+## Endpoints Disponibles
+
+Estos endpoints interactúan principalmente con MongoDB:
+
+### Logs y Analíticas
+```http
+GET /api/activity-logs
+```
+- **Descripción**: Obtiene historial de actividad.
+
+```http
+GET /api/analytics
+```
+- **Descripción**: Obtiene métricas de rendimiento.
+
+### Configuración
+```http
+GET /api/company/info
+```
+- **Descripción**: Obtiene información de contacto y configuración del sitio.
 
 ## Solución de Problemas
 
-## Error: "MongoServerError: bad auth"
+### Error: "bad auth"
+1. Verifica usuario y contraseña en `MONGODB_URI`.
+2. Asegúrate de que el usuario tenga permisos de lectura/escritura.
 
-**Causa**: Credenciales incorrectas o usuario no existe
+### Error: "connection timed out"
+1. Revisa **Network Access** en Atlas (IP Whitelist).
+2. Verifica tu conexión a internet.
 
-**Solución**:
-1. Verifica las credenciales en `.env`
-2. En MongoDB Atlas: Verifica que el usuario tenga permisos correctos
-3. Verifica que la contraseña no tenga caracteres especiales que necesiten encoding
-
-## Error: "MongoServerSelectionError: connection timed out"
-
-**Causa**: No se puede alcanzar el servidor de MongoDB
-
-**Soluciones**:
-
-#### MongoDB Atlas:
-1. Verifica que tu IP esté en la lista de **Network Access**
-2. Agrega `0.0.0.0/0` temporalmente para desarrollo
-3. Verifica que la cadena de conexión sea correcta
-4. Verifica tu conexión a internet
-
-# Probar la API 
-# Endpoints Disponibles (que usan MongoDB):
-
-```bash
-# Obtener configuración del sitio
-GET http://localhost:3002/api/company/info
-
-# Ver logs de actividad
-GET http://localhost:3002/api/activity-logs
-
-# Obtener analytics
-GET http://localhost:3002/api/analytics
-```
-
-## Monitoreo
-
-### Verificar Conexión:
-```bash
-# Ejecutar script de prueba
-npm run test-connections
-
-# Ver información de MongoDB
-# El script mostrará:
-# ✅ MongoDB conectado correctamente
-#    Estado: Conectado
-#    Host: [host]
-#    Puerto: 
-#    Base de datos: chimbote_travel
-#    Versión: [versión]
-#    Colecciones: activitylogs, galleries, analytics, siteconfigs, reviews
-```
-
-### Ver datos en MongoDB Atlas:
-1. Ve a **Database** → **Browse Collections**
-2. Selecciona la base de datos `chimbote_travel`
-3. Explora las colecciones y documentos
 
 

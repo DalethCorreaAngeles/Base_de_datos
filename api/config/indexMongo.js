@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
 
-// ===========================================
-// CONFIGURACIÓN DE MONGODB
-// ===========================================
+// Configuracion de MongoDB
 
 // URI de conexión a MongoDB (usa la URI de MongoDB Atlas o local)
-const mongoURI = process.env.MONGODB_URI || 
+const mongoURI = process.env.MONGODB_URI ||
   'mongodb+srv://daliaph3929q_db_user:AkfuLFnVeVsjuFG8@cluster0.bhxsztz.mongodb.net/chimbote_travel?retryWrites=true&w=majority&appName=Cluster0';
 
 // Opciones de conexión (sin opciones deprecadas)
@@ -15,27 +13,21 @@ const mongoOptions = {
   socketTimeoutMS: 45000, // Cierra sockets después de 45s de inactividad
 };
 
-// ===========================================
-// FUNCIONES DE CONEXIÓN
-// ===========================================
+// Funciones de conexion
 
 // Conectar a MongoDB
 async function connectMongoDB() {
   try {
     // Verificar si ya está conectado
     if (mongoose.connection.readyState === 1) {
-      console.log('✅ MongoDB ya está conectado');
       return mongoose.connection;
     }
 
     await mongoose.connect(mongoURI, mongoOptions);
-    console.log('✅ MongoDB conectado exitosamente');
-    console.log(`   Base de datos: ${mongoose.connection.db.databaseName}`);
-    console.log(`   Host: ${mongoose.connection.host || 'Atlas Cluster'}`);
+    // Conectado
     return mongoose.connection;
   } catch (error) {
-    console.error('❌ Error conectando a MongoDB:', error.message);
-    console.error('   Verifica que MongoDB esté ejecutándose y las credenciales sean correctas');
+    console.error('Error conectando a MongoDB:', error.message);
     throw error;
   }
 }
@@ -45,10 +37,9 @@ async function disconnectMongoDB() {
   try {
     if (mongoose.connection.readyState !== 0) {
       await mongoose.disconnect();
-      console.log('✅ MongoDB desconectado exitosamente');
     }
   } catch (error) {
-    console.error('❌ Error desconectando de MongoDB:', error.message);
+    console.error('Error desconectando de MongoDB:', error.message);
     throw error;
   }
 }
@@ -72,17 +63,12 @@ function getMongoConnectionStatus() {
 
 // Inicializar conexión a MongoDB
 async function initializeMongoDB() {
-  console.log('📊 Iniciando conexión a MongoDB...');
-  
+  // Iniciando...
+
   try {
     await connectMongoDB();
-    console.log('✅ MongoDB conectado exitosamente');
   } catch (error) {
-    console.error('❌ Error inicializando MongoDB:', error);
-    console.error('   Soluciones posibles:');
-    console.error('   1. Verifica que MongoDB esté ejecutándose');
-    console.error('   2. Verifica la URI de conexión (MONGODB_URI)');
-    console.error('   3. Si usas MongoDB Atlas, verifica la cadena de conexión y la IP permitida');
+    console.error('Error inicializando MongoDB:', error.message);
     throw error;
   }
 }
@@ -92,20 +78,18 @@ async function initializeMongoDB() {
 // ===========================================
 
 mongoose.connection.on('connected', () => {
-  console.log('📊 MongoDB: Conexión establecida');
+  // Conectado
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB: Error de conexión:', err);
+  console.error('MongoDB Error:', err.message);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('📊 MongoDB: Desconectado');
+  // Desconectado
 });
 
-// ===========================================
-// EXPORTAR FUNCIONES Y CONFIGURACIÓN
-// ===========================================
+// Exportar
 
 module.exports = {
   connectMongoDB,

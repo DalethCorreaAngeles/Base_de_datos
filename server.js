@@ -8,8 +8,10 @@ const rateLimit = require('express-rate-limit');
 const { initializePostgreSQL } = require('./api/config/database');
 const { initializeMongoDB } = require('./api/config/indexMongo');
 const { initOracle } = require('./api/config/oracle');
+const { initializeCassandra } = require('./api/config/cassandra');
 const PostgreSQLModels = require('./api/models/postgresql');
 const { MongoDBModels } = require('./api/models/mongodb');
+const CassandraModels = require('./api/models/cassandra');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -67,75 +69,84 @@ app.use('*', (req, res) => {
   });
 });
 
-// ===========================================
-// INICIALIZAR SERVIDOR CON BASES DE DATOS
-// ===========================================
+// Inicializar servidor y bases de datos
 async function startServer() {
   const dbStatus = {
     postgresql: false,
     mongodb: false,
-    oracle: false
+    oracle: false,
+    cassandra: false
   };
 
+  console.log('Iniciando conexion a base de datos ...');
+  console.log('Iniciando conexión a MongoDB...');
+  console.log('Iniciando conexión a PostgreSQL...');
+  console.log('Iniciando conexión a Oracle...');
+  console.log('Iniciando conexión a Cassandra...');
+  console.log('conectando.....');
+
+  // Iniciar servidor express inmediatamente
+  const server = app.listen(PORT, () => {
+    console.log('------------------------------------------');
+    console.log('Servidor iniciado');
+    console.log(`API corriendo en http://localhost:${PORT}`);
+    console.log('------------------------------------------');
+  });
+
   try {
-    // 1. Inicializar MongoDB (no crítico - el servidor puede iniciar sin él)
-    try {
-      console.log('📊 Inicializando MongoDB...');
-      await initializeMongoDB();
-      await MongoDBModels.initializeSiteConfig();
-      dbStatus.mongodb = true;
-      console.log('✅ MongoDB inicializado correctamente');
-    } catch (mongoError) {
-      console.warn('⚠️  MongoDB no disponible:', mongoError.message);
-      console.warn('   El servidor continuará sin MongoDB');
-    }
+    // Inicializar todas las bases de datos en paralelo
+    const results = await Promise.allSettled([
+      // MongoDB
+      initializeMongoDB().then(async () => {
+        await MongoDBModels.initializeSiteConfig();
+        dbStatus.mongodb = true;
+        return 'MongoDB conectado';
+      }),
 
-    // 2. Inicializar PostgreSQL (crítico para algunas funcionalidades)
-    try {
-      console.log('📊 Inicializando PostgreSQL...');
-      await initializePostgreSQL();
-      console.log('📊 Inicializando tablas de PostgreSQL...');
-      await PostgreSQLModels.initializeTables();
-      await insertSampleData();
-      dbStatus.postgresql = true;
-      console.log('✅ PostgreSQL inicializado correctamente');
-    } catch (postgresError) {
-      console.warn('⚠️  PostgreSQL no disponible:', postgresError.message);
-      console.warn('   El servidor continuará, pero algunas funcionalidades no estarán disponibles');
-    }
+      // PostgreSQL
+      initializePostgreSQL().then(async () => {
+        await PostgreSQLModels.initializeTables();
+        // Insertar datos en segundo plano
+        insertSampleData().catch(err => console.error('Error insertando datos:', err.message));
+        dbStatus.postgresql = true;
+        return 'PostgreSQL conectado';
+      }),
 
-    // 3. Inicializar Oracle (no crítico - el servidor puede iniciar sin él)
-    try {
-      console.log('📊 Inicializando Oracle...');
-      await initOracle();
-      dbStatus.oracle = true;
-      console.log('✅ Oracle inicializado correctamente');
-    } catch (oracleError) {
-      console.warn('⚠️  Oracle no disponible:', oracleError.message);
-      console.warn('   El servidor continuará sin Oracle');
-    }
+      // Oracle
+      initOracle().then(() => {
+        dbStatus.oracle = true;
+        return 'Oracle conectado';
+      }),
 
-    // 4. Iniciar servidor (siempre inicia, incluso si las DBs fallan)
-    app.listen(PORT, () => {
-      console.log('\n==========================================');
-      console.log('🚀 Servidor iniciado exitosamente!');
-      console.log('==========================================');
-      console.log(`✅ API corriendo en http://localhost:${PORT}`);
-      console.log('\n📊 Estado de bases de datos:');
-      console.log(`   PostgreSQL: ${dbStatus.postgresql ? '✅ Conectado' : '❌ No disponible'}`);
-      console.log(`   MongoDB:    ${dbStatus.mongodb ? '✅ Conectado' : '❌ No disponible'}`);
-      console.log(`   Oracle:     ${dbStatus.oracle ? '✅ Conectado' : '❌ No disponible'}`);
-      console.log('\n🔗 Endpoints disponibles:');
-      console.log('    GET  /api/destinations');
-      console.log('    POST /api/reservations');
-      console.log('    GET  /api/company/info');
-      console.log('    GET  /api/activity-logs');
-      console.log('    GET  /api/analytics');
-      console.log('==========================================\n');
-    });
+      // Cassandra
+      initializeCassandra().then(async () => {
+        await CassandraModels.initializeTables();
+        dbStatus.cassandra = true;
+        return 'Cassandra conectado';
+      })
+    ]);
+
+    // Mostrar resultados
+    console.log('Estado de bases de datos:');
+
+    // MongoDB
+    if (results[0].status === 'fulfilled') console.log('   MongoDB:    Conectado');
+    else console.log(`   MongoDB:    No disponible (${results[0].reason.message})`);
+
+    // PostgreSQL
+    if (results[1].status === 'fulfilled') console.log('   PostgreSQL: Conectado');
+    else console.log(`   PostgreSQL: No disponible (${results[1].reason.message})`);
+
+    // Oracle
+    if (results[2].status === 'fulfilled') console.log('   Oracle:     Conectado');
+    else console.log(`   Oracle:     No disponible (${results[2].reason.message})`);
+
+    // Cassandra
+    if (results[3].status === 'fulfilled') console.log('   Cassandra:  Conectado');
+    else console.log(`   Cassandra:  No disponible (${results[3].reason.message})`);
+
   } catch (error) {
-    console.error('❌ Error crítico iniciando servidor:', error);
-    process.exit(1);
+    console.error('Error general iniciando servicios:', error);
   }
 }
 
@@ -143,18 +154,15 @@ async function startServer() {
 async function insertSampleData() {
   try {
     const { postgresPool } = require('./api/config/database');
-    
+
     // Verificar si ya existen datos
     const checkQuery = 'SELECT COUNT(*) FROM destinations';
     const result = await postgresPool.query(checkQuery);
-    
+
     if (result.rows[0].count > 0) {
-      console.log('📊 Datos de ejemplo ya existen');
       return;
     }
-    
-    console.log('📊 Insertando datos de ejemplo...');
-    
+
     // Insertar destinos de ejemplo
     const destinations = [
       {
@@ -185,19 +193,19 @@ async function insertSampleData() {
         image_url: '/assets/logo-chimbote.jpg'
       }
     ];
-    
+
     for (const dest of destinations) {
       const query = `
         INSERT INTO destinations (name, location, description, price, duration_days, includes, image_url)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
       `;
       await postgresPool.query(query, [
-        dest.name, dest.location, dest.description, dest.price, 
+        dest.name, dest.location, dest.description, dest.price,
         dest.duration_days, dest.includes, dest.image_url
       ]);
     }
-    
-    console.log(' Datos de ejemplo insertados exitosamente');
+
+    // Datos insertados
   } catch (error) {
     console.error(' Error insertando datos de ejemplo:', error);
   }
