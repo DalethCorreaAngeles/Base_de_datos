@@ -158,7 +158,7 @@
 
         try {
           // Usamos la URL completa porque estás abriendo el HTML desde otro puerto (ej. 5500)
-          const response = await fetch('http://localhost:3002/api/reservations', {
+          const response = await fetch('http://localhost:3000/api/reservations', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
