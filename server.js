@@ -14,7 +14,7 @@ const { MongoDBModels } = require('./api/models/mongo.db');
 const CassandraModels = require('./api/models/cassandra.db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 // Middleware de seguridad
 app.use(helmet({

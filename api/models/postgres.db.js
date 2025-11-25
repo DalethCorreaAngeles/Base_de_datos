@@ -1,10 +1,9 @@
 const { postgresPool } = require('../config/postgres');
 
 class PostgreSQLModels {
-
-  // ===========================================
+  // =============================
   // DESTINOS TURÍSTICOS
-  // ===========================================
+  // =============================
   static async createDestinationsTable() {
     const query = `
       CREATE TABLE IF NOT EXISTS destinations (
@@ -14,7 +13,7 @@ class PostgreSQLModels {
         description TEXT,
         price DECIMAL(10,2) NOT NULL,
         duration_days INTEGER NOT NULL,
-        includes JSONB, -- Antes TEXT[], ahora JSONB
+        includes JSONB,
         image_url VARCHAR(500),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -35,9 +34,9 @@ class PostgreSQLModels {
     return result.rows[0];
   }
 
-  // ===========================================
+  // =============================
   // RESERVAS
-  // ===========================================
+  // =============================
   static async createReservationsTable() {
     const query = `
       CREATE TABLE IF NOT EXISTS reservations (
@@ -68,7 +67,7 @@ class PostgreSQLModels {
       reservationData.destination_id,
       reservationData.travel_date,
       reservationData.number_of_people,
-      reservationData.total_price
+      reservationData.total_price,
     ];
     const result = await postgresPool.query(query, values);
     return result.rows[0];
@@ -76,18 +75,18 @@ class PostgreSQLModels {
 
   static async getAllReservations() {
     const query = `
-      SELECT r.*, d.name AS destination_name, d.location 
-      FROM reservations r 
-      JOIN destinations d ON r.destination_id = d.id 
+      SELECT r.*, d.name AS destination_name, d.location
+      FROM reservations r
+      JOIN destinations d ON r.destination_id = d.id
       ORDER BY r.created_at DESC
     `;
     const result = await postgresPool.query(query);
     return result.rows;
   }
 
-  // ===========================================
+  // =============================
   // USUARIOS
-  // ===========================================
+  // =============================
   static async createUsersTable() {
     const query = `
       CREATE TABLE IF NOT EXISTS users (
@@ -123,25 +122,34 @@ class PostgreSQLModels {
 
   static async updateUserPhone(email, phone) {
     const query = `
-      UPDATE users 
-      SET phone = $1, updated_at = CURRENT_TIMESTAMP 
-      WHERE email = $2 
+      UPDATE users
+      SET phone = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE email = $2
       RETURNING id, username, email, phone, role, created_at, updated_at
     `;
     const result = await postgresPool.query(query, [phone, email]);
     return result.rows[0];
   }
 
-  // ===========================================
+  // Ensure phone column exists in users table
+  static async ensurePhoneColumn() {
+    const query = `ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20);`;
+    try {
+      await postgresPool.query(query);
+    } catch (err) {
+      console.error('Error ensuring phone column:', err.message);
+    }
+  }
+
+  // =============================
   // INICIALIZAR TODAS LAS TABLAS
-  // ===========================================
+  // =============================
   static async initializeTables() {
-    // Inicializando tablas
     try {
       await this.createDestinationsTable();
       await this.createReservationsTable();
       await this.createUsersTable();
-      // Tablas creadas
+      await this.ensurePhoneColumn();
     } catch (error) {
       console.error('Error creando tablas de PostgreSQL:', error.message);
       throw error;

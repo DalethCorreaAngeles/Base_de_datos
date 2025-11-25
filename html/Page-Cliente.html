@@ -74,9 +74,9 @@
                     </div>
                     <div class="form-group">
                         <label>Teléfono</label>
-                        <input type="tel" value="+51 987 654 321">
+                        <input type="tel" id="input-phone" value="+51 987 654 321" />
                     </div>
-                    <button type="button" class="btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn-primary" id="save-phone-btn">Guardar Cambios</button>
                 </form>
             </div>
             <div id="historial" class="tab-content" style="display: none;">
@@ -116,6 +116,9 @@
                     loadUserReservations(storedUser.email);
                     // Cargar estadísticas del usuario
                     loadUserStats(storedUser.email);
+                    if (storedUser.phone) {
+                        document.getElementById('input-phone').value = storedUser.phone;
+                    }
                 }
             } else {
                 console.log('No user data found in localStorage');
@@ -125,7 +128,7 @@
         // Cargar estadísticas del usuario
         async function loadUserStats(email) {
             try {
-                const response = await fetch(`http://localhost:3002/api/reservations/by-email/${email}`);
+                const response = await fetch(`http://localhost:3000/api/reservations/by-email/${email}`);
                 const result = await response.json();
 
                 if (result.success && result.data.length > 0) {
@@ -153,7 +156,7 @@
         // Cargar reservas del usuario (solo activas, no canceladas)
         async function loadUserReservations(email) {
             try {
-                const response = await fetch(`http://localhost:3002/api/reservations/by-email/${email}`);
+                const response = await fetch(`http://localhost:3000/api/reservations/by-email/${email}`);
                 const result = await response.json();
 
                 if (result.success && result.data.length > 0) {
@@ -250,7 +253,7 @@
         // Mostrar detalles de reserva
         async function showReservationDetails(reservationId) {
             try {
-                const response = await fetch(`http://localhost:3002/api/reservations/${reservationId}`);
+                const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}`);
                 const result = await response.json();
 
                 if (result.success) {
@@ -371,7 +374,7 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:3002/api/reservations/${reservationId}/status`, {
+                const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -407,7 +410,7 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:3002/api/reservations/by-email/${storedUser.email}`);
+                const response = await fetch(`http://localhost:3000/api/reservations/by-email/${storedUser.email}`);
                 const result = await response.json();
 
                 if (result.success && result.data.length > 0) {
@@ -483,6 +486,38 @@
                     }
                 }
             });
+        });
+        // Save phone number
+        document.getElementById('save-phone-btn').addEventListener('click', async () => {
+            const phone = document.getElementById('input-phone').value.trim();
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+            if (!storedUser || !storedUser.email) {
+                alert('Usuario no autenticado');
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/update-phone', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: storedUser.email, phone })
+                });
+                const result = await response.json();
+                if (result.message) {
+                    // Update local storage
+                    storedUser.phone = phone;
+                    localStorage.setItem('user', JSON.stringify(storedUser));
+                    alert(result.message);
+                } else if (result.error) {
+                    alert('Error: ' + result.error);
+                } else {
+                    alert('Respuesta inesperada del servidor');
+                }
+            } catch (err) {
+                console.error('Error updating phone:', err);
+                alert('Error al actualizar el teléfono');
+            }
         });
     </script>
 </body>
