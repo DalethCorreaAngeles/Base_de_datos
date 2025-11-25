@@ -17,7 +17,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware de seguridad
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "script-src": ["'self'", "'unsafe-inline'"],
+      "script-src-attr": ["'self'", "'unsafe-inline'"],
+    },
+  },
+}));
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
@@ -30,12 +38,18 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Servir archivos estáticos
+app.use('/html', express.static('html'));
+app.use('/css', express.static('css'));
+app.use('/assets', express.static('assets'));
+
 // Rutas
 app.use('/api/destinations', require('./api/routes/destinations'));
 app.use('/api/reservations', require('./api/routes/reservations'));
 app.use('/api/company', require('./api/routes/company'));
 app.use('/api/activity-logs', require('./api/routes/activity-logs'));
 app.use('/api/analytics', require('./api/routes/analytics'));
+app.use('/api/auth', require('./api/routes/auth'));
 
 // Ruta principal
 app.get('/', (req, res) => {

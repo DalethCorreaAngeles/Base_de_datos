@@ -115,6 +115,39 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/reservations/by-email/:email - Obtener reservas por email del cliente
+router.get('/by-email/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    // Obtener reservas del cliente desde PostgreSQL con información completa del destino
+    const query = `
+      SELECT r.*, d.name as destination_name, d.location, d.description, 
+             d.price as destination_price, d.duration_days, d.includes, d.image_url
+      FROM reservations r 
+      JOIN destinations d ON r.destination_id = d.id 
+      WHERE LOWER(r.client_email) = LOWER($1)
+      ORDER BY r.created_at DESC
+    `;
+    const result = await postgresPool.query(query, [email]);
+
+    res.json({
+      success: true,
+      data: result.rows,
+      count: result.rows.length,
+      source: 'PostgreSQL'
+    });
+
+  } catch (error) {
+    console.error('Error obteniendo reservas por email:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
+
 // GET /api/reservations/:id - Obtener reserva específica
 router.get('/:id', async (req, res) => {
   try {

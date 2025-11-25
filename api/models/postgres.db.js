@@ -95,12 +95,41 @@ class PostgreSQLModels {
         username VARCHAR(100) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
+        phone VARCHAR(20),
         role VARCHAR(50) DEFAULT 'client',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
     return await postgresPool.query(query);
+  }
+
+  static async createUser(userData) {
+    const query = `
+      INSERT INTO users (username, email, password_hash)
+      VALUES ($1, $2, $3)
+      RETURNING id, username, email, role, created_at
+    `;
+    const values = [userData.username, userData.email, userData.password_hash];
+    const result = await postgresPool.query(query, values);
+    return result.rows[0];
+  }
+
+  static async getUserByEmail(email) {
+    const query = `SELECT * FROM users WHERE email = $1`;
+    const result = await postgresPool.query(query, [email]);
+    return result.rows[0];
+  }
+
+  static async updateUserPhone(email, phone) {
+    const query = `
+      UPDATE users 
+      SET phone = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE email = $2 
+      RETURNING id, username, email, phone, role, created_at, updated_at
+    `;
+    const result = await postgresPool.query(query, [phone, email]);
+    return result.rows[0];
   }
 
   // ===========================================

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador - Chimbote Travel Tours</title>
+    <link rel="stylesheet" href="../css/administrador.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="material-symbols-rounded">admin_panel_settings</span>
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#dashboard" class="active"><span class="material-symbols-rounded">dashboard</span>
+                            Dashboard</a></li>
+                    <li><a href="#destinos"><span class="material-symbols-rounded">tour</span> Destinos</a></li>
+                    <li><a href="#reservas"><span class="material-symbols-rounded">book_online</span> Reservas</a></li>
+                    <li><a href="#clientes"><span class="material-symbols-rounded">group</span> Clientes</a></li>
+                    <li><a href="#base-datos"><span class="material-symbols-rounded">database</span> Base de Datos</a>
+                    </li>
+                    <li><a href="../html/chimbotes.html"><span class="material-symbols-rounded">logout</span> Salir</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <h1>Bienvenido, Administrador</h1>
+                <div class="user-info">
+                    <span class="material-symbols-rounded">account_circle</span>
+                    <span>Admin</span>
+                </div>
+            </header>
+
+            <section id="dashboard" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><span class="material-symbols-rounded">tour</span></div>
+                        <div class="stat-info">
+                            <h3>Total Destinos</h3>
+                            <p>12</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><span class="material-symbols-rounded">book_online</span></div>
+                        <div class="stat-info">
+                            <h3>Reservas Activas</h3>
+                            <p>25</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><span class="material-symbols-rounded">group</span></div>
+                        <div class="stat-info">
+                            <h3>Clientes Registrados</h3>
+                            <p>150</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="base-datos" class="content-section">
+                <h2>Estado de Base de Datos</h2>
+                <div class="db-status-grid">
+                    <div class="db-card postgres">
+                        <div class="db-header">
+                            <span class="material-symbols-rounded">table_view</span>
+                            <h3>PostgreSQL</h3>
+                        </div>
+                        <div class="db-body">
+                            <p>Estado: <span class="status-badge active">Conectado</span></p>
+                            <p>Tablas: 5</p>
+                            <button class="btn-manage">Administrar</button>
+                        </div>
+                    </div>
+                    <div class="db-card mongo">
+                        <div class="db-header">
+                            <span class="material-symbols-rounded">eco</span>
+                            <h3>MongoDB</h3>
+                        </div>
+                        <div class="db-body">
+                            <p>Estado: <span class="status-badge active">Conectado</span></p>
+                            <p>Colecciones: 3</p>
+                            <button class="btn-manage">Administrar</button>
+                        </div>
+                    </div>
+                    <div class="db-card oracle">
+                        <div class="db-header">
+                            <span class="material-symbols-rounded">dns</span>
+                            <h3>Oracle</h3>
+                        </div>
+                        <div class="db-body">
+                            <p>Estado: <span class="status-badge inactive">Desconectado</span></p>
+                            <p>Esquemas: 1</p>
+                            <button class="btn-manage">Administrar</button>
+                        </div>
+                    </div>
+                    <div class="db-card cassandra">
+                        <div class="db-header">
+                            <span class="material-symbols-rounded">visibility</span>
+                            <h3>Cassandra</h3>
+                        </div>
+                        <div class="db-body">
+                            <p>Estado: <span class="status-badge inactive">Desconectado</span></p>
+                            <p>Keyspaces: 1</p>
+                            <button class="btn-manage">Administrar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Placeholder sections for other features -->
+            <section id="destinos" class="content-section" style="display:none;">
+                <h2>Gestión de Destinos</h2>
+                <p>Aquí podrás agregar, editar y eliminar destinos turísticos.</p>
+                <button class="btn-primary">Nuevo Destino</button>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Simple tab switching logic
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelectorAll('.content-section').forEach(sec => sec.style.display = 'none');
+                    document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+
+                    const targetId = href.substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                        link.classList.add('active');
+                    } else {
+                        // Default to dashboard if section not found (or for dashboard itself if ID matches)
+                        document.getElementById('dashboard').style.display = 'block';
+                        // If the link was dashboard, keep it active, otherwise find dashboard link
+                        if (targetId === 'dashboard') link.classList.add('active');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

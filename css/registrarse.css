@@ -1,0 +1,150 @@
+:root {
+    --primary-color: #0077C9; 
+    --secondary-color: #00599a; 
+    --accent-color: #ffca28;
+    --text-color: #333;
+    --bg-color: #f4f6f8;
+    --white: #ffffff;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('https://images.unsplash.com/photo-1530469641172-8ac15d0a7d6a?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dmlhamVzJTIwaW50ZXJuYWNpb25hbGVzfGVufDB8fDB8fHww');
+
+    background-size: cover;
+    background-position: center;
+}
+
+.register-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+.register-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+
+    backdrop-filter: blur(3px); 
+}
+
+.register-header {
+    margin-bottom: 30px;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    object-fit: cover;
+}
+
+.register-header h2 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.register-header p {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.register-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper .material-symbols-rounded {
+    position: absolute;
+    left: 12px;
+    color: var(--secondary-color); 
+    font-size: 20px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary-color); 
+}
+
+.btn-register {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary-color); 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    margin-top: 10px;
+}
+
+.btn-register:hover {
+    background-color: var(--secondary-color); 
+    transform: translateY(-2px);
+}
+
+.register-footer {
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.register-footer p {
+    margin-bottom: 8px;
+}
+
+.register-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-footer a:hover {
+    text-decoration: underline;
+}
