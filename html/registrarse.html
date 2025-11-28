@@ -37,6 +37,52 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded">call</span>
+                        <input type="tel" id="phone" name="phone" placeholder="+51 999 999 999" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pais">País</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded">public</span>
+                        <input type="text" id="pais" name="pais" placeholder="Ej. Perú" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo_documento">Tipo de Documento</label>
+                    <div class="input-wrapper">
+
+                        <select id="tipo_documento" name="tipo_documento" required onchange="updateDocumentLabel()">
+                            <option value="" disabled selected>Seleccione</option>
+                            <option value="DNI">DNI</option>
+                            <option value="Pasaporte">Pasaporte</option>
+                            <option value="Carne extranjeria">Carné de Extranjería</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label id="label_numero_documento" for="numero_documento">Número de DNI</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded">id_card</span>
+                        <input type="text" id="numero_documento" name="numero_documento" placeholder="Ingrese su número"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded">calendar_today</span>
+                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="password">Contraseña</label>
                     <div class="input-wrapper">
                         <span class="material-symbols-rounded">lock</span>
@@ -66,6 +112,18 @@
     </div>
 
     <script>
+        function updateDocumentLabel() {
+            const tipo = document.getElementById('tipo_documento').value;
+            const label = document.getElementById('label_numero_documento');
+            if (tipo === 'DNI') {
+                label.textContent = 'Número de DNI';
+            } else if (tipo === 'Pasaporte') {
+                label.textContent = 'Número de Pasaporte';
+            } else {
+                label.textContent = 'Número de Carné de Extranjería';
+            }
+        }
+
         async function handleRegister() {
             console.log('handleRegister called');
 
@@ -73,6 +131,11 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
+            const phone = document.getElementById('phone').value;
+            const pais = document.getElementById('pais').value;
+            const tipo_documento = document.getElementById('tipo_documento').value;
+            const numero_documento = document.getElementById('numero_documento').value;
+            const fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
 
             if (password !== confirmPassword) {
                 alert('Las contraseñas no coinciden');
@@ -86,7 +149,16 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ fullname, email, password })
+                    body: JSON.stringify({
+                        fullname,
+                        email,
+                        password,
+                        phone,
+                        pais,
+                        tipo_documento,
+                        numero_documento,
+                        fecha_nacimiento
+                    })
                 });
 
                 console.log('Response received:', response);

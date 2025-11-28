@@ -78,6 +78,32 @@
                             <input type="tel" id="input-phone" value="+51 987 654 321" />
                         </div>
                     </div>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>País</label>
+                            <input type="text" id="input-pais" placeholder="Ej. Perú" />
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Nacimiento</label>
+                            <input type="date" id="input-fecha_nacimiento" />
+                        </div>
+                    </div>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Tipo de Documento</label>
+                            <select id="input-tipo_documento"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="" disabled selected>Seleccione</option>
+                                <option value="DNI">DNI</option>
+                                <option value="Pasaporte">Pasaporte</option>
+                                <option value="Carne extranjeria">Carné de Extranjería</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Número de Documento</label>
+                            <input type="text" id="input-numero_documento" placeholder="Ingrese su número" />
+                        </div>
+                    </div>
                     <button type="button" class="btn-primary" id="save-phone-btn">Guardar Cambios</button>
                 </form>
             </div>
@@ -118,397 +144,190 @@
                     loadUserReservations(storedUser.email);
                     // Cargar estadísticas del usuario
                     loadUserStats(storedUser.email);
-                    if (storedUser.phone) {
-                        document.getElementById('input-phone').value = storedUser.phone;
+
+                    // Cargar otros datos
+                    if (storedUser.phone) document.getElementById('input-phone').value = storedUser.phone;
+                    if (storedUser.pais) document.getElementById('input-pais').value = storedUser.pais;
+                    if (storedUser.tipo_documento) document.getElementById('input-tipo_documento').value = storedUser.tipo_documento;
+                    if (storedUser.numero_documento) document.getElementById('input-numero_documento').value = storedUser.numero_documento;
+                    if (storedUser.fecha_nacimiento) {
+                        // Formatear fecha para input date (YYYY-MM-DD)
+                        const date = new Date(storedUser.fecha_nacimiento);
+                        const formattedDate = date.toISOString().split('T')[0];
+                        document.getElementById('input-fecha_nacimiento').value = formattedDate;
                     }
                 }
             } else {
                 console.log('No user data found in localStorage');
+                // Redirigir a login si no hay usuario?
+                // window.location.href = 'login.html';
             }
+
+            // Tab Switching Logic
+            const navLinks = document.querySelectorAll('.profile-nav a');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    // Add active class to clicked link
+                    link.classList.add('active');
+
+                    // Hide all tab contents
+                    tabContents.forEach(content => {
+                        content.style.display = 'none';
+                        content.classList.remove('active');
+                    });
+
+                    // Show target tab content
+                    const targetId = link.getAttribute('href').substring(1); // remove #
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.style.display = 'block';
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
         });
 
-        // Cargar estadísticas del usuario
-        async function loadUserStats(email) {
-            try {
-                const response = await fetch(`http://localhost:3000/api/reservations/by-email/${email}`);
-                const result = await response.json();
-
-                if (result.success && result.data.length > 0) {
-                    // Contar viajes completados
-                    const completedTrips = result.data.filter(r => r.status === 'completed').length;
-
-                    // Contar reservas activas (pending, confirmed)
-                    const activeReservations = result.data.filter(r =>
-                        r.status === 'pending' || r.status === 'confirmed'
-                    ).length;
-
-                    // Actualizar en la UI
-                    document.getElementById('completed-trips-count').textContent = completedTrips;
-                    document.getElementById('active-reservations-count').textContent = activeReservations;
-                } else {
-                    // Si no hay reservas, dejar en 0
-                    document.getElementById('completed-trips-count').textContent = '0';
-                    document.getElementById('active-reservations-count').textContent = '0';
-                }
-            } catch (error) {
-                console.error('Error loading user stats:', error);
-            }
-        }
-
-        // Cargar reservas del usuario (solo activas, no canceladas)
         async function loadUserReservations(email) {
             try {
                 const response = await fetch(`http://localhost:3000/api/reservations/by-email/${email}`);
                 const result = await response.json();
 
-                if (result.success && result.data.length > 0) {
-                    // Filtrar solo reservas NO canceladas
-                    const activeReservations = result.data.filter(r => r.status !== 'cancelled');
+                const container = document.querySelector('.reservations-list');
+                const historyContainer = document.querySelector('.all-reservations-list');
 
-                    if (activeReservations.length > 0) {
-                        displayReservations(activeReservations);
-                    } else {
-                        showNoReservationsMessage();
-                    }
+                container.innerHTML = '';
+                if (historyContainer) historyContainer.innerHTML = '';
+
+                if (result.success && result.data.length > 0) {
+                    result.data.forEach(reservation => {
+                        const card = createReservationCard(reservation);
+                        container.appendChild(card);
+
+                        // For now, history is the same as reservations
+                        if (historyContainer) {
+                            const historyCard = createReservationCard(reservation);
+                            historyContainer.appendChild(historyCard);
+                        }
+                    });
                 } else {
-                    showNoReservationsMessage();
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p>No tienes reservas activas. <a href="destinos.html" style="color: #007bff; text-decoration: underline;">Hacer mi primera reserva</a></p>
+                        </div>
+                    `;
+                    if (historyContainer) historyContainer.innerHTML = '<p>No tienes historial de reservas.</p>';
                 }
             } catch (error) {
                 console.error('Error loading reservations:', error);
-                showErrorMessage();
+                document.querySelector('.reservations-list').innerHTML = '<p>Error al cargar reservas.</p>';
             }
         }
 
-        // Mostrar reservas
-        function displayReservations(reservations) {
-            const container = document.querySelector('.reservations-list');
-            container.innerHTML = ''; // Limpiar reservas de ejemplo
+        async function loadUserStats(email) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/reservations/by-email/${email}`);
+                const result = await response.json();
 
-            reservations.forEach(reservation => {
-                const card = createReservationCard(reservation);
-                container.appendChild(card);
-            });
+                if (result.success) {
+                    const reservations = result.data;
+                    document.getElementById('active-reservations-count').textContent = reservations.length;
+
+                    // Assuming 'completed' status for trips count, or just total for now
+                    const completedTrips = reservations.filter(r => r.status === 'completed').length;
+                    document.getElementById('completed-trips-count').textContent = completedTrips;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
         }
 
-        // Crear tarjeta de reserva
         function createReservationCard(reservation) {
-            const card = document.createElement('div');
-            card.className = 'reservation-card';
+            const div = document.createElement('div');
+            div.className = 'reservation-card';
+            div.style.border = '1px solid #eee';
+            div.style.padding = '15px';
+            div.style.marginBottom = '15px';
+            div.style.borderRadius = '8px';
+            div.style.backgroundColor = '#fff';
+            div.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
 
-            // Determinar si es futura o pasada
-            const travelDate = new Date(reservation.travel_date);
-            const today = new Date();
-            const isPast = travelDate < today;
-
-            if (isPast) {
-                card.classList.add('past');
-            } else {
-                card.classList.add('upcoming');
-            }
-
-            // Formatear fecha
-            const formattedDate = travelDate.toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-            });
-
-            // Mapear status a español
-            const statusMap = {
-                'pending': 'Pendiente',
-                'confirmed': 'Confirmada',
-                'cancelled': 'Cancelada',
-                'completed': 'Completada'
+            const date = new Date(reservation.travel_date).toLocaleDateString();
+            const statusColors = {
+                'pending': '#f39c12',
+                'confirmed': '#2ecc71',
+                'cancelled': '#e74c3c',
+                'completed': '#3498db'
             };
+            const statusColor = statusColors[reservation.status] || '#95a5a6';
 
-            card.innerHTML = `
-                <div class="res-header">
-                    <span class="status ${reservation.status}">${statusMap[reservation.status] || 'Pendiente'}</span>
-                    <span class="date">${formattedDate}</span>
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0; color: #333;">${reservation.destination_name || 'Destino'}</h3>
+                    <span style="background-color: ${statusColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; text-transform: uppercase;">
+                        ${reservation.status || 'Pendiente'}
+                    </span>
                 </div>
-                <div class="res-body">
-                    <h3>${reservation.destination_name}</h3>
-                    <p><span class="material-symbols-rounded">schedule</span> ${reservation.duration_days} Día${reservation.duration_days > 1 ? 's' : ''}</p>
-                    <p><span class="material-symbols-rounded">group</span> ${reservation.number_of_people} Persona${reservation.number_of_people > 1 ? 's' : ''}</p>
-                    <p class="price">S/ ${parseFloat(reservation.total_price).toFixed(2)}</p>
-                </div>
-                <div class="res-footer">
-                    <button class="btn-outline" onclick="showReservationDetails(${reservation.id})">Ver Detalles</button>
-                </div>
-            `;
-
-            return card;
-        }
-
-        // Mostrar mensaje de sin reservas
-        function showNoReservationsMessage() {
-            const container = document.querySelector('.reservations-list');
-            container.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No tienes reservas aún. <a href="reserva1.html" style="color: #00695c; font-weight: bold;">Haz tu primera reserva</a></p>';
-        }
-
-        // Mostrar mensaje de error
-        function showErrorMessage() {
-            const container = document.querySelector('.reservations-list');
-            container.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">Error al cargar las reservas. Por favor intenta nuevamente.</p>';
-        }
-
-        // Mostrar detalles de reserva
-        async function showReservationDetails(reservationId) {
-            try {
-                const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}`);
-                const result = await response.json();
-
-                if (result.success) {
-                    const reservation = result.data;
-                    displayDetailsModal(reservation);
-                }
-            } catch (error) {
-                console.error('Error loading reservation details:', error);
-                alert('Error al cargar los detalles de la reserva');
-            }
-        }
-
-        // Mostrar modal con detalles
-        function displayDetailsModal(reservation) {
-            const modalBody = document.getElementById('modalBody');
-
-            // Formatear includes
-            let includesList = '';
-            if (reservation.includes && Array.isArray(reservation.includes)) {
-                includesList = reservation.includes.map(item => `<li>${item}</li>`).join('');
-            }
-
-            // Formatear fecha
-            const travelDate = new Date(reservation.travel_date);
-            const formattedDate = travelDate.toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-
-            // Mapear status a español
-            const statusMap = {
-                'pending': 'Pendiente',
-                'confirmed': 'Confirmada',
-                'cancelled': 'Cancelada',
-                'completed': 'Completada'
-            };
-
-            modalBody.innerHTML = `
-                <h2>${reservation.destination_name}</h2>
-                <img src="${reservation.image_url || '/assets/logo-chimbote.jpg'}" alt="${reservation.destination_name}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">
-                
-                <div class="detail-section">
-                    <h3>📍 Información del Destino</h3>
-                    <p><strong>Ubicación:</strong> ${reservation.location}</p>
-                    <p><strong>Descripción:</strong> ${reservation.description || 'No disponible'}</p>
-                    <p><strong>Duración:</strong> ${reservation.duration_days} día${reservation.duration_days > 1 ? 's' : ''}</p>
-                    <p><strong>Precio por persona:</strong> S/ ${parseFloat(reservation.destination_price).toFixed(2)}</p>
-                </div>
-
-                ${includesList ? `
-                <div class="detail-section">
-                    <h3>✓ Incluye</h3>
-                    <ul class="includes-list">${includesList}</ul>
-                </div>
-                ` : ''}
-
-                <div class="detail-section">
-                    <h3>🎫 Detalles de tu Reserva</h3>
-                    <p><strong>Fecha de viaje:</strong> ${formattedDate}</p>
-                    <p><strong>Número de personas:</strong> ${reservation.number_of_people}</p>
-                    <p><strong>Total a pagar:</strong> <span style="color: #27ae60; font-size: 1.2em; font-weight: bold;">S/ ${parseFloat(reservation.total_price).toFixed(2)}</span></p>
-                    <p><strong>Estado:</strong> <span class="status ${reservation.status}">${statusMap[reservation.status] || 'Pendiente'}</span></p>
-                </div>
-
-                <div class="detail-section" style="border-bottom: none; padding-bottom: 0;">
-                    <h3>⚡ Acciones</h3>
-                    <div style="display: flex; gap: 15px; margin-top: 15px;">
-                        <button onclick="showPaymentMethods(${reservation.id})" class="btn-primary" style="flex: 1;">💳 Pagar</button>
-                        <button onclick="deleteReservation(${reservation.id})" class="btn-outline" style="flex: 1; border-color: #e74c3c; color: #e74c3c;">🗑️ Borrar Pedido</button>
-                    </div>
+                <p style="margin: 5px 0; color: #666;"><strong>Fecha:</strong> ${date}</p>
+                <p style="margin: 5px 0; color: #666;"><strong>Personas:</strong> ${reservation.number_of_people}</p>
+                <p style="margin: 5px 0; color: #666;"><strong>Total:</strong> $${reservation.total_price}</p>
+                <div style="margin-top: 10px; text-align: right;">
+                    <button onclick="viewDetails(${reservation.id})" style="background: none; border: 1px solid #3498db; color: #3498db; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Ver Detalles</button>
                 </div>
             `;
-
-            document.getElementById('detailsModal').style.display = 'block';
+            return div;
         }
 
-        // Mostrar métodos de pago
-        function showPaymentMethods(reservationId) {
-            const modalBody = document.getElementById('modalBody');
-            modalBody.innerHTML = `
-                <h2>💳 Métodos de Pago</h2>
-                <p style="text-align: center; margin-bottom: 30px;">Selecciona tu método de pago preferido:</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
-                    <a href="visa.html" style="text-decoration: none;">
-                        <div style="border: 2px solid #eee; border-radius: 10px; padding: 20px; text-align: center; transition: all 0.3s; cursor: pointer;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1200px-Visa_Inc._logo.svg.png" alt="Visa" style="width: 100%; max-width: 120px; height: 40px; object-fit: contain;">
-                        </div>
-                    </a>
-                    <a href="mastercard.html" style="text-decoration: none;">
-                        <div style="border: 2px solid #eee; border-radius: 10px; padding: 20px; text-align: center; transition: all 0.3s; cursor: pointer;">
-                            <img src="https://e7.pngegg.com/pngimages/962/794/png-clipart-mastercard-credit-card-mastercard-logo-mastercard-logo-love-text.png" alt="Mastercard" style="width: 100%; max-width: 120px; height: 40px; object-fit: contain;">
-                        </div>
-                    </a>
-                    <a href="yape.html" style="text-decoration: none;">
-                        <div style="border: 2px solid #eee; border-radius: 10px; padding: 20px; text-align: center; transition: all 0.3s; cursor: pointer;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Icono_de_la_aplicaci%C3%B3n_Yape.png" alt="Yape" style="width: 100%; max-width: 120px; height: 40px; object-fit: contain;">
-                        </div>
-                    </a>
-                    <a href="plin.html" style="text-decoration: none;">
-                        <div style="border: 2px solid #eee; border-radius: 10px; padding: 20px; text-align: center; transition: all 0.3s; cursor: pointer;">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo9ig-yw4ZC6cj896X8Fl3DSd160deJD-dFw&s" alt="Plin" style="width: 100%; max-width: 120px; height: 40px; object-fit: contain;">
-                        </div>
-                    </a>
-                </div>
-                
-                <div style="text-align: center;">
-                    <button onclick="closeDetailsModal()" class="btn-outline">Volver</button>
-                </div>
-            `;
+        function viewDetails(id) {
+            // Implement modal details view if needed
+            console.log('View details for', id);
+            // Simple alert for now or implement modal logic
+            alert('Detalles de la reserva ' + id);
         }
 
-        // Borrar reserva
-        async function deleteReservation(reservationId) {
-            if (!confirm('¿Estás seguro de que deseas borrar esta reserva?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ status: 'cancelled' })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('Reserva cancelada exitosamente');
-                    closeDetailsModal();
-                    // Recargar reservas
-                    const storedUser = JSON.parse(localStorage.getItem('user'));
-                    if (storedUser && storedUser.email) {
-                        loadUserReservations(storedUser.email);
-                    }
-                } else {
-                    alert('Error al cancelar la reserva: ' + result.error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cancelar la reserva');
-            }
-        }
-
-        // Cargar todas las reservas del cliente para el historial (incluyendo canceladas)
-        async function loadAllReservations() {
-            const storedUser = JSON.parse(localStorage.getItem('user'));
-            if (!storedUser || !storedUser.email) {
-                showNoHistoryMessage();
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:3000/api/reservations/by-email/${storedUser.email}`);
-                const result = await response.json();
-
-                if (result.success && result.data.length > 0) {
-                    displayAllReservations(result.data);
-                } else {
-                    showNoHistoryMessage();
-                }
-            } catch (error) {
-                console.error('Error loading all reservations:', error);
-                showHistoryErrorMessage();
-            }
-        }
-
-        // Mostrar todas las reservas en historial
-        function displayAllReservations(reservations) {
-            const container = document.querySelector('.all-reservations-list');
-            container.innerHTML = '';
-
-            reservations.forEach(reservation => {
-                const card = createReservationCard(reservation);
-                container.appendChild(card);
-            });
-        }
-
-        // Mensajes para historial
-        function showNoHistoryMessage() {
-            const container = document.querySelector('.all-reservations-list');
-            container.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No tienes historial de reservas.</p>';
-        }
-
-        function showHistoryErrorMessage() {
-            const container = document.querySelector('.all-reservations-list');
-            container.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">Error al cargar el historial.</p>';
-        }
-
-        // Cerrar modal
-        function closeDetailsModal() {
-            document.getElementById('detailsModal').style.display = 'none';
-        }
-
-        // Cerrar modal al hacer clic fuera
-        window.onclick = function (event) {
-            const modal = document.getElementById('detailsModal');
-            if (event.target == modal) {
-                closeDetailsModal();
-            }
-        }
-
-        // Navegación entre tabs
-        document.querySelectorAll('.profile-nav a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href').substring(1);
-
-                // Update active link
-                document.querySelectorAll('.profile-nav a').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-
-                // Show content
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.style.display = 'none';
-                    content.classList.remove('active');
-                });
-
-                const targetContent = document.getElementById(targetId);
-                if (targetContent) {
-                    targetContent.style.display = 'block';
-                    setTimeout(() => targetContent.classList.add('active'), 10);
-
-                    // Cargar todas las reservas si es el historial
-                    if (targetId === 'historial') {
-                        loadAllReservations();
-                    }
-                }
-            });
-        });
-        // Save phone number
+        // Save profile data
         document.getElementById('save-phone-btn').addEventListener('click', async () => {
             const phone = document.getElementById('input-phone').value.trim();
+            const pais = document.getElementById('input-pais').value.trim();
+            const tipo_documento = document.getElementById('input-tipo_documento').value;
+            const numero_documento = document.getElementById('input-numero_documento').value.trim();
+            const fecha_nacimiento = document.getElementById('input-fecha_nacimiento').value;
+
             const storedUser = JSON.parse(localStorage.getItem('user'));
             if (!storedUser || !storedUser.email) {
                 alert('Usuario no autenticado');
                 return;
             }
+
             try {
-                const response = await fetch('http://localhost:3000/api/auth/update-phone', {
+                const response = await fetch('http://localhost:3000/api/auth/update-profile', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email: storedUser.email, phone })
+                    body: JSON.stringify({
+                        email: storedUser.email,
+                        phone,
+                        pais,
+                        tipo_documento,
+                        numero_documento,
+                        fecha_nacimiento
+                    })
                 });
                 const result = await response.json();
                 if (result.message) {
                     // Update local storage
                     storedUser.phone = phone;
+                    storedUser.pais = pais;
+                    storedUser.tipo_documento = tipo_documento;
+                    storedUser.numero_documento = numero_documento;
+                    storedUser.fecha_nacimiento = fecha_nacimiento;
+
                     localStorage.setItem('user', JSON.stringify(storedUser));
                     alert(result.message);
                 } else if (result.error) {
@@ -517,8 +336,8 @@
                     alert('Respuesta inesperada del servidor');
                 }
             } catch (err) {
-                console.error('Error updating phone:', err);
-                alert('Error al actualizar el teléfono');
+                console.error('Error updating profile:', err);
+                alert('Error al actualizar el perfil');
             }
         });
     </script>

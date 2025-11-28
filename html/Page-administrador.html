@@ -8,6 +8,393 @@
     <link rel="stylesheet" href="../css/administrador.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <style>
+        /* Estilos adicionales para el CRUD */
+        .crud-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 2px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #00695c;
+            font-weight: 600;
+            color: white;
+            border: 1px solid #004d40;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #e8f5e9;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .empty-table {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+            border: 1px solid #ddd;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-edit {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #0b7dda;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #da190b;
+        }
+
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #616161;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .db-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .db-card {
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .db-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .db-card.active {
+            border-color: #4CAF50;
+        }
+
+        .db-card.postgres {
+            background: linear-gradient(135deg, #336791 0%, #4a90c2 100%);
+            color: white;
+        }
+
+        .db-card.mongo {
+            background: linear-gradient(135deg, #4DB33D 0%, #6ec95f 100%);
+            color: white;
+        }
+
+        .db-card.oracle {
+            background: linear-gradient(135deg, #F80000 0%, #ff4444 100%);
+            color: white;
+        }
+
+        .db-card.cassandra {
+            background: linear-gradient(135deg, #1287B1 0%, #3da8cc 100%);
+            color: white;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-badge.inactive {
+            background: #f44336;
+            color: white;
+        }
+
+        .table-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .table-item {
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .table-item:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .table-item.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        /* Estilos para vista agrupada de reservas */
+        .client-group {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .client-header:hover {
+            background: #e0e0e0;
+        }
+
+        .client-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .client-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .reservations-count {
+            background: #4CAF50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .reservations-list {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .reservations-list.expanded {
+            display: block;
+        }
+
+        .reservation-item {
+            background: #fafafa;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .reservation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .reservation-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #333;
+            margin-top: 2px;
+        }
+
+        .status-selector {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .status-selector:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .status-pending {
+            color: #FF9800;
+        }
+
+        .status-confirmed {
+            color: #2196F3;
+        }
+
+        .status-paid {
+            color: #4CAF50;
+        }
+
+        .status-cancelled {
+            color: #f44336;
+        }
+
+        .status-completed {
+            color: #9C27B0;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,9 +408,6 @@
                 <ul>
                     <li><a href="#dashboard" class="active"><span class="material-symbols-rounded">dashboard</span>
                             Dashboard</a></li>
-                    <li><a href="#destinos"><span class="material-symbols-rounded">tour</span> Destinos</a></li>
-                    <li><a href="#reservas"><span class="material-symbols-rounded">book_online</span> Reservas</a></li>
-                    <li><a href="#clientes"><span class="material-symbols-rounded">group</span> Clientes</a></li>
                     <li><a href="#base-datos"><span class="material-symbols-rounded">database</span> Base de Datos</a>
                     </li>
                     <li><a href="../html/chimbotes.html"><span class="material-symbols-rounded">logout</span> Salir</a>
@@ -41,93 +425,114 @@
                 </div>
             </header>
 
+            <!-- Dashboard Section -->
             <section id="dashboard" class="content-section">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><span class="material-symbols-rounded">tour</span></div>
-                        <div class="stat-info">
-                            <h3>Total Destinos</h3>
-                            <p>12</p>
-                        </div>
+                <h2>Estado de Bases de Datos</h2>
+                <div class="db-selector">
+                    <div class="db-card postgres" data-db="postgresql" onclick="navigateToDatabase('postgres')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">table_view</span>
+                        <h3>PostgreSQL</h3>
+                        <p>Estado: <span class="status-badge" id="postgres-status">Verificando...</span></p>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><span class="material-symbols-rounded">book_online</span></div>
-                        <div class="stat-info">
-                            <h3>Reservas Activas</h3>
-                            <p>25</p>
-                        </div>
+                    <div class="db-card mongo" data-db="mongodb" onclick="navigateToDatabase('mongodb')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">eco</span>
+                        <h3>MongoDB</h3>
+                        <p>Estado: <span class="status-badge" id="mongodb-status">Verificando...</span></p>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><span class="material-symbols-rounded">group</span></div>
-                        <div class="stat-info">
-                            <h3>Clientes Registrados</h3>
-                            <p>150</p>
-                        </div>
+                    <div class="db-card oracle" data-db="oracle" onclick="navigateToDatabase('oracle')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">dns</span>
+                        <h3>Oracle</h3>
+                        <p>Estado: <span class="status-badge" id="oracle-status">Verificando...</span></p>
                     </div>
-                </div>
-            </section>
-
-            <section id="base-datos" class="content-section">
-                <h2>Estado de Base de Datos</h2>
-                <div class="db-status-grid">
-                    <div class="db-card postgres">
-                        <div class="db-header">
-                            <span class="material-symbols-rounded">table_view</span>
-                            <h3>PostgreSQL</h3>
-                        </div>
-                        <div class="db-body">
-                            <p>Estado: <span class="status-badge active">Conectado</span></p>
-                            <p>Tablas: 5</p>
-                            <button class="btn-manage">Administrar</button>
-                        </div>
-                    </div>
-                    <div class="db-card mongo">
-                        <div class="db-header">
-                            <span class="material-symbols-rounded">eco</span>
-                            <h3>MongoDB</h3>
-                        </div>
-                        <div class="db-body">
-                            <p>Estado: <span class="status-badge active">Conectado</span></p>
-                            <p>Colecciones: 3</p>
-                            <button class="btn-manage">Administrar</button>
-                        </div>
-                    </div>
-                    <div class="db-card oracle">
-                        <div class="db-header">
-                            <span class="material-symbols-rounded">dns</span>
-                            <h3>Oracle</h3>
-                        </div>
-                        <div class="db-body">
-                            <p>Estado: <span class="status-badge inactive">Desconectado</span></p>
-                            <p>Esquemas: 1</p>
-                            <button class="btn-manage">Administrar</button>
-                        </div>
-                    </div>
-                    <div class="db-card cassandra">
-                        <div class="db-header">
-                            <span class="material-symbols-rounded">visibility</span>
-                            <h3>Cassandra</h3>
-                        </div>
-                        <div class="db-body">
-                            <p>Estado: <span class="status-badge inactive">Desconectado</span></p>
-                            <p>Keyspaces: 1</p>
-                            <button class="btn-manage">Administrar</button>
-                        </div>
+                    <div class="db-card cassandra" data-db="cassandra" onclick="navigateToDatabase('cassandra')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">visibility</span>
+                        <h3>Cassandra</h3>
+                        <p>Estado: <span class="status-badge" id="cassandra-status">Verificando...</span></p>
                     </div>
                 </div>
             </section>
 
-            <!-- Placeholder sections for other features -->
-            <section id="destinos" class="content-section" style="display:none;">
-                <h2>Gestión de Destinos</h2>
-                <p>Aquí podrás agregar, editar y eliminar destinos turísticos.</p>
-                <button class="btn-primary">Nuevo Destino</button>
+            <!-- Database Management Section -->
+            <section id="base-datos" class="content-section" style="display:none;">
+                <h2>Gestión de Base de Datos</h2>
+
+                <div id="db-message"></div>
+
+                <!-- Database Selector -->
+                <div class="db-selector">
+                    <div class="db-card postgres" onclick="selectDatabase('postgres')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">table_view</span>
+                        <h3>PostgreSQL</h3>
+                    </div>
+                    <div class="db-card mongo" onclick="selectDatabase('mongodb')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">eco</span>
+                        <h3>MongoDB</h3>
+                    </div>
+                    <div class="db-card oracle" onclick="selectDatabase('oracle')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">dns</span>
+                        <h3>Oracle</h3>
+                    </div>
+                    <div class="db-card cassandra" onclick="selectDatabase('cassandra')">
+                        <span class="material-symbols-rounded" style="font-size: 48px;">visibility</span>
+                        <h3>Cassandra</h3>
+                    </div>
+                </div>
+
+                <!-- Table Selector -->
+                <div id="table-selector" style="display:none;">
+                    <h3>Selecciona una tabla/colección:</h3>
+                    <div class="table-list" id="table-list"></div>
+                </div>
+
+                <!-- Vista Agrupada de Reservas -->
+                <div id="reservations-grouped-view" style="display:none;">
+                    <h3>Reservas Agrupadas por Cliente</h3>
+                    <div id="reservations-grouped-container"></div>
+                </div>
+
+                <!-- CRUD Container -->
+                <div id="crud-container" class="crud-container" style="display:none;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 id="current-table-name">Tabla</h3>
+                        <button class="btn btn-primary" onclick="openCreateModal()">
+                            <span class="material-symbols-rounded" style="vertical-align: middle;">add</span>
+                            Nuevo Registro
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="data-table">
+                            <thead id="table-head"></thead>
+                            <tbody id="table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
 
+    <!-- Modal for Create/Edit -->
+    <div id="dataModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Nuevo Registro</h2>
+            <form id="dataForm">
+                <div id="form-fields"></div>
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Simple tab switching logic
+        let currentDB = null;
+        let currentTable = null;
+        let currentData = [];
+        let editingId = null;
+
+        // Navigation
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('href');
@@ -141,15 +546,545 @@
                     if (targetSection) {
                         targetSection.style.display = 'block';
                         link.classList.add('active');
-                    } else {
-                        // Default to dashboard if section not found (or for dashboard itself if ID matches)
-                        document.getElementById('dashboard').style.display = 'block';
-                        // If the link was dashboard, keep it active, otherwise find dashboard link
-                        if (targetId === 'dashboard') link.classList.add('active');
                     }
                 }
             });
         });
+
+        // Navigate from Dashboard to Database
+        function navigateToDatabase(dbType) {
+            // Switch to database section
+            document.querySelectorAll('.content-section').forEach(sec => sec.style.display = 'none');
+            document.getElementById('base-datos').style.display = 'block';
+
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+            document.querySelector('a[href="#base-datos"]').classList.add('active');
+
+            // Select the database
+            selectDatabase(dbType);
+        }
+
+        // Check database status
+        async function checkDatabaseStatus() {
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/database-status');
+                const result = await response.json();
+
+                if (result.success) {
+                    const status = result.status;
+                    document.getElementById('postgres-status').textContent = status.postgresql ? 'Conectado' : 'Desconectado';
+                    document.getElementById('postgres-status').className = status.postgresql ? 'status-badge active' : 'status-badge inactive';
+
+                    document.getElementById('mongodb-status').textContent = status.mongodb ? 'Conectado' : 'Desconectado';
+                    document.getElementById('mongodb-status').className = status.mongodb ? 'status-badge active' : 'status-badge inactive';
+
+                    document.getElementById('oracle-status').textContent = status.oracle ? 'Conectado' : 'Desconectado';
+                    document.getElementById('oracle-status').className = status.oracle ? 'status-badge active' : 'status-badge inactive';
+
+                    document.getElementById('cassandra-status').textContent = status.cassandra ? 'Conectado' : 'Desconectado';
+                    document.getElementById('cassandra-status').className = status.cassandra ? 'status-badge active' : 'status-badge inactive';
+                }
+            } catch (error) {
+                console.error('Error checking database status:', error);
+            }
+        }
+
+        // Select database
+        async function selectDatabase(dbType) {
+            currentDB = dbType;
+            currentTable = null;
+
+            document.querySelectorAll('.db-card').forEach(card => card.classList.remove('active'));
+            event.target.closest('.db-card').classList.add('active');
+
+            document.getElementById('crud-container').style.display = 'none';
+            document.getElementById('table-selector').style.display = 'block';
+
+            await loadTables();
+        }
+
+        // Load tables/collections
+        async function loadTables() {
+            const tableList = document.getElementById('table-list');
+            tableList.innerHTML = '<div class="loading">Cargando tablas...</div>';
+
+            try {
+                let endpoint = '';
+                if (currentDB === 'postgres') endpoint = '/api/admin/postgres/tables';
+                else if (currentDB === 'mongodb') endpoint = '/api/admin/mongodb/collections';
+                else if (currentDB === 'oracle') endpoint = '/api/admin/oracle/tables';
+                else if (currentDB === 'cassandra') endpoint = '/api/admin/cassandra/tables';
+
+                const response = await fetch(`http://localhost:3000${endpoint}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const items = result.tables || result.collections || [];
+
+                    if (items.length > 0) {
+                        tableList.innerHTML = items.map(item => {
+                            const name = typeof item === 'string' ? item : (item.name || item);
+                            const displayName = item.displayName || name;
+                            return `<div class="table-item" onclick="selectTable('${name}')">${displayName}</div>`;
+                        }).join('');
+
+                        // Auto-select first table
+                        const firstTable = typeof items[0] === 'string' ? items[0] : (items[0].name || items[0]);
+                        setTimeout(() => {
+                            const firstItem = tableList.querySelector('.table-item');
+                            if (firstItem) {
+                                firstItem.click();
+                            }
+                        }, 100);
+                    } else {
+                        tableList.innerHTML = '<div class="empty-message">No se encontraron tablas</div>';
+                    }
+                } else {
+                    tableList.innerHTML = `<div class="error-message">Error: ${result.error}</div>`;
+                }
+            } catch (error) {
+                tableList.innerHTML = `<div class="error-message">Error de conexión: ${error.message}</div>`;
+            }
+        }
+
+        // Select table
+        async function selectTable(tableName) {
+            currentTable = tableName;
+
+            document.querySelectorAll('.table-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Si es la tabla de reservations, mostrar vista agrupada
+            if (tableName === 'reservations' && currentDB === 'postgres') {
+                await showGroupedReservations();
+            } else {
+                document.getElementById('reservations-grouped-view').style.display = 'none';
+                document.getElementById('current-table-name').textContent = tableName;
+                document.getElementById('crud-container').style.display = 'block';
+                await loadTableData();
+            }
+        }
+
+        // Diccionario de traducción de nombres de columnas
+        const columnTranslations = {
+            'id': 'ID',
+            'client_name': 'Cliente',
+            'client_email': 'Email',
+            'destination_id': 'Destino ID',
+            'travel_date': 'Fecha Viaje',
+            'number_of_people': 'Personas',
+            'total_price': 'Precio Total',
+            'status': 'Status',
+            'created_at': 'Creado',
+            'updated_at': 'Actualizado',
+            'destination_name': 'Destino',
+            'location': 'Ubicación',
+            'name': 'Nombre',
+            'description': 'Descripción',
+            'price': 'Precio',
+            'duration_days': 'Duración (días)',
+            'includes': 'Incluye',
+            'image_url': 'Imagen',
+            'username': 'Usuario',
+            'email': 'Email',
+            'phone': 'Teléfono',
+            'role': 'Rol'
+        };
+
+        // Función para traducir nombres de columnas
+        function translateColumn(columnName) {
+            return columnTranslations[columnName] || columnName;
+        }
+
+        // Función especial para mostrar reservas agrupadas
+        async function showGroupedReservations() {
+            document.getElementById('crud-container').style.display = 'none';
+            document.getElementById('reservations-grouped-view').style.display = 'block';
+
+            const container = document.getElementById('reservations-grouped-container');
+            container.innerHTML = '<div class="loading">Cargando reservas...</div>';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/postgres/tables/reservations/data');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    // Agrupar por cliente
+                    const groupedByClient = {};
+                    result.data.forEach(row => {
+                        const email = row.client_email;
+                        if (!groupedByClient[email]) {
+                            groupedByClient[email] = {
+                                email: email,
+                                cliente: row.client_name,
+                                reservas: []
+                            };
+                        }
+                        groupedByClient[email].reservas.push(row);
+                    });
+
+                    const clientGroups = Object.values(groupedByClient);
+
+                    container.innerHTML = clientGroups.map(clientGroup => `
+                        <div class="client-group">
+                            <div class="client-header" onclick="toggleReservations('${clientGroup.email.replace(/'/g, "\\'")}')">
+                                <div class="client-info">
+                                    <span class="material-symbols-rounded">person</span>
+                                    <span class="client-name">${clientGroup.cliente}</span>
+                                    <span style="color: #666; font-size: 14px;">${clientGroup.email}</span>
+                                </div>
+                                <div>
+                                    <span class="reservations-count">${clientGroup.reservas.length} reserva${clientGroup.reservas.length > 1 ? 's' : ''}</span>
+                                    <span class="material-symbols-rounded" id="arrow-${btoa(clientGroup.email)}">expand_more</span>
+                                </div>
+                            </div>
+                            <div class="reservations-list" id="list-${btoa(clientGroup.email)}">
+                                ${clientGroup.reservas.map(reserva => `
+                                    <div class="reservation-item">
+                                        <div class="reservation-header">
+                                            <h4 style="margin: 0;">Reserva #${reserva.id} - ${reserva.destination_name}</h4>
+                                            <div style="display: flex; gap: 10px; align-items: center;">
+                                                <select class="status-selector status-${reserva.status}" 
+                                                        onchange="updateReservationStatus(${reserva.id}, this.value)">
+                                                    <option value="pending" ${reserva.status === 'pending' ? 'selected' : ''}>Pendiente</option>
+                                                    <option value="confirmed" ${reserva.status === 'confirmed' ? 'selected' : ''}>Confirmada</option>
+                                                    <option value="paid" ${reserva.status === 'paid' ? 'selected' : ''}>Pagada</option>
+                                                    <option value="completed" ${reserva.status === 'completed' ? 'selected' : ''}>Completada</option>
+                                                    <option value="cancelled" ${reserva.status === 'cancelled' ? 'selected' : ''}>Cancelada</option>
+                                                </select>
+                                                <button class="btn btn-edit" style="padding: 4px 8px; font-size: 12px;" onclick="openEditModal('${reserva.id}')">
+                                                    <span class="material-symbols-rounded" style="font-size: 16px;">edit</span>
+                                                </button>
+                                                <button class="btn btn-delete" style="padding: 4px 8px; font-size: 12px;" onclick="deleteRecord('${reserva.id}')">
+                                                    <span class="material-symbols-rounded" style="font-size: 16px;">delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="reservation-details">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Destino</span>
+                                                <span class="detail-value">${reserva.destination_name}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Ubicación</span>
+                                                <span class="detail-value">${reserva.location}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Fecha de Viaje</span>
+                                                <span class="detail-value">${new Date(reserva.travel_date).toLocaleDateString('es-PE')}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Personas</span>
+                                                <span class="detail-value">${reserva.number_of_people}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Precio Total</span>
+                                                <span class="detail-value">S/ ${parseFloat(reserva.total_price).toFixed(2)}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Solicitado</span>
+                                                <span class="detail-value">${new Date(reserva.created_at).toLocaleDateString('es-PE')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-table">No hay reservas disponibles</div>';
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Toggle para expandir/contraer lista de reservas
+        function toggleReservations(email) {
+            const emailEncoded = btoa(email);
+            const list = document.getElementById(`list-${emailEncoded}`);
+            const arrow = document.getElementById(`arrow-${emailEncoded}`);
+
+            list.classList.toggle('expanded');
+            arrow.textContent = list.classList.contains('expanded') ? 'expand_less' : 'expand_more';
+        }
+
+        // Actualizar status de reserva
+        async function updateReservationStatus(reservationId, newStatus) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/admin/postgres/reservations/${reservationId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('Status actualizado exitosamente', 'success');
+                    // Recargar la vista
+                    await showGroupedReservations();
+                } else {
+                    showMessage('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        // Load table data
+        async function loadTableData() {
+            const tableBody = document.getElementById('table-body');
+            const tableHead = document.getElementById('table-head');
+            tableBody.innerHTML = '<tr><td colspan="100" class="loading">Cargando datos...</td></tr>';
+
+            try {
+                let endpoint = '';
+                if (currentDB === 'postgres') endpoint = `/api/admin/postgres/tables/${currentTable}/data`;
+                else if (currentDB === 'mongodb') endpoint = `/api/admin/mongodb/collections/${currentTable}/data`;
+                else if (currentDB === 'oracle') endpoint = `/api/admin/oracle/tables/${currentTable}/data`;
+                else if (currentDB === 'cassandra') endpoint = `/api/admin/cassandra/tables/${currentTable}/data`;
+
+                const response = await fetch(`http://localhost:3000${endpoint}`);
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    currentData = result.data;
+
+                    // Build table header
+                    const columns = Object.keys(result.data[0]);
+                    tableHead.innerHTML = `
+                        <tr>
+                            ${columns.map(col => `<th>${translateColumn(col)}</th>`).join('')}
+                            <th>Acciones</th>
+                        </tr>
+                    `;
+
+                    // Build table body
+                    tableBody.innerHTML = result.data.map(row => {
+                        const id = row.id || row._id;
+                        return `
+                            <tr>
+                                ${columns.map(col => {
+                            let value = row[col];
+                            if (value === null || value === undefined) {
+                                value = '<span style="color: #999; font-style: italic;">null</span>';
+                            } else if (typeof value === 'object') {
+                                value = JSON.stringify(value);
+                            } else if (typeof value === 'boolean') {
+                                value = value ? '✓' : '✗';
+                            }
+                            if (typeof value === 'string' && value.length > 50) {
+                                value = value.substring(0, 50) + '...';
+                            }
+                            return `<td>${value}</td>`;
+                        }).join('')}
+                                <td>
+                                    ${currentDB !== 'cassandra' && currentDB !== 'oracle' ? `
+                                        <button class="btn btn-edit" onclick="openEditModal('${id}')">Editar</button>
+                                        <button class="btn btn-delete" onclick="deleteRecord('${id}')">Eliminar</button>
+                                    ` : '<span style="color: #999;">Solo lectura</span>'}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else if (result.success && result.data.length === 0) {
+                    // Table exists but is empty - try to get structure
+                    tableHead.innerHTML = '';
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="100" class="empty-table">
+                                <span class="material-symbols-rounded" style="font-size: 48px; color: #ccc;">inbox</span>
+                                <p style="margin-top: 10px;">No hay datos en esta tabla</p>
+                                ${currentDB !== 'cassandra' && currentDB !== 'oracle' ?
+                            '<p style="font-size: 12px; color: #999;">Haz clic en "Nuevo Registro" para agregar datos</p>' :
+                            '<p style="font-size: 12px; color: #999;">Esta tabla está vacía (solo lectura)</p>'}
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tableHead.innerHTML = '';
+                    tableBody.innerHTML = '<tr><td colspan="100" class="empty-table">No hay datos disponibles</td></tr>';
+                }
+            } catch (error) {
+                tableHead.innerHTML = '';
+                tableBody.innerHTML = `<tr><td colspan="100" class="error-message">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Open create modal
+        function openCreateModal() {
+            if (currentDB === 'cassandra' || currentDB === 'oracle') {
+                showMessage('Esta base de datos es solo de lectura en este panel', 'error');
+                return;
+            }
+
+            editingId = null;
+            document.getElementById('modal-title').textContent = 'Nuevo Registro';
+            buildForm();
+            document.getElementById('dataModal').style.display = 'block';
+        }
+
+        // Open edit modal
+        function openEditModal(id) {
+            editingId = id;
+            document.getElementById('modal-title').textContent = 'Editar Registro';
+            const record = currentData.find(r => (r.id || r._id).toString() === id.toString());
+            buildForm(record);
+            document.getElementById('dataModal').style.display = 'block';
+        }
+
+        // Build form
+        function buildForm(data = {}) {
+            const formFields = document.getElementById('form-fields');
+            formFields.innerHTML = '';
+
+            if (currentData.length > 0) {
+                const columns = Object.keys(currentData[0]);
+
+                columns.forEach(col => {
+                    if (col === 'id' || col === '_id' || col === 'created_at' || col === 'updated_at') return;
+
+                    const div = document.createElement('div');
+                    div.className = 'form-group';
+
+                    const label = document.createElement('label');
+                    label.textContent = col;
+                    div.appendChild(label);
+
+                    let input;
+                    const value = data[col] || '';
+
+                    if (typeof value === 'object' || col.includes('json') || col === 'includes') {
+                        input = document.createElement('textarea');
+                        input.value = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
+                    } else if (col.includes('date')) {
+                        input = document.createElement('input');
+                        input.type = 'date';
+                        input.value = value ? value.split('T')[0] : '';
+                    } else if (col.includes('email')) {
+                        input = document.createElement('input');
+                        input.type = 'email';
+                        input.value = value;
+                    } else if (col.includes('price') || col.includes('number')) {
+                        input = document.createElement('input');
+                        input.type = 'number';
+                        input.step = '0.01';
+                        input.value = value;
+                    } else {
+                        input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = value;
+                    }
+
+                    input.name = col;
+                    div.appendChild(input);
+                    formFields.appendChild(div);
+                });
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('dataModal').style.display = 'none';
+            document.getElementById('dataForm').reset();
+        }
+
+        // Handle form submit
+        document.getElementById('dataForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {};
+
+            for (let [key, value] of formData.entries()) {
+                // Try to parse JSON fields
+                if (key.includes('json') || key === 'includes') {
+                    try {
+                        data[key] = JSON.parse(value);
+                    } catch {
+                        data[key] = value;
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            try {
+                let endpoint = '';
+                let method = 'POST';
+
+                if (editingId) {
+                    method = 'PUT';
+                    if (currentDB === 'postgres') endpoint = `/api/admin/postgres/tables/${currentTable}/data/${editingId}`;
+                    else if (currentDB === 'mongodb') endpoint = `/api/admin/mongodb/collections/${currentTable}/data/${editingId}`;
+                } else {
+                    if (currentDB === 'postgres') endpoint = `/api/admin/postgres/tables/${currentTable}/data`;
+                    else if (currentDB === 'mongodb') endpoint = `/api/admin/mongodb/collections/${currentTable}/data`;
+                }
+
+                const response = await fetch(`http://localhost:3000${endpoint}`, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(editingId ? 'Registro actualizado exitosamente' : 'Registro creado exitosamente', 'success');
+                    closeModal();
+                    await loadTableData();
+                } else {
+                    showMessage('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión: ' + error.message, 'error');
+            }
+        });
+
+        // Delete record
+        async function deleteRecord(id) {
+            if (!confirm('¿Estás seguro de eliminar este registro?')) return;
+
+            try {
+                let endpoint = '';
+                if (currentDB === 'postgres') endpoint = `/api/admin/postgres/tables/${currentTable}/data/${id}`;
+                else if (currentDB === 'mongodb') endpoint = `/api/admin/mongodb/collections/${currentTable}/data/${id}`;
+
+                const response = await fetch(`http://localhost:3000${endpoint}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('Registro eliminado exitosamente', 'success');
+                    await loadTableData();
+                } else {
+                    showMessage('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error de conexión: ' + error.message, 'error');
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('db-message');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize
+        checkDatabaseStatus();
+        setInterval(checkDatabaseStatus, 30000); // Check every 30 seconds
     </script>
 </body>
 
